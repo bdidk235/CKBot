@@ -42,7 +42,7 @@ async def faq(ctx, question: str):
         disnake.Option("amount", "Amount of Possabilities", disnake.OptionType.integer)
     ]
 )
-async def videoSearch(ctx, search:str = "", amount:int = 10):
+async def videoSearch(ctx, search:str, amount:int = 10):
     try:
         videos = extras.youtube_search(search, amount)
         await ctx.send(random.choice(videos))
@@ -59,7 +59,7 @@ async def rickroll(ctx, amount:int = 10):
     try:
         searches = ["rickroll", "never gonna give you up"]
         search = random.choice(searches)
-        videos = extras.youtube_search(search, amount)
+        videos = extras.youtube_search(search, amount, true)
         await ctx.send(random.choice(videos))
     except Exception:
         traceback.print_exc() 

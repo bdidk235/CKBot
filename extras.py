@@ -1,11 +1,13 @@
 from youtubesearchpython import SearchVideos
 
-def youtube_search(search, max_results:int = 10):
+def youtube_search(search, max_results:int = 10, rickroll:bool = False):
     searchVideos = SearchVideos(search, mode = "dict", max_results = max_results)
 
     videos = []
 
     for i in range(len(searchVideos.result()['search_result'])):
+        if rickroll and searchVideos.result()['search_result'][i]["title"].find("not "):
+            
         videos.append(searchVideos.result()['search_result'][i]["link"])
 
     return videos
