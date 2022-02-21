@@ -27,7 +27,7 @@ async def faq(ctx, question: str):
     answers = {
         "why": "Why not?",
         "bot": "I'm a bot made for <@628260543588859904> because he's cool by <@622670618822967296> for the Generic RPG Game Server.",
-        "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this bot.",
+        "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
         "stealing": "Maybe? Hopefully not!",
         "creatorkill": "A guy who does stuff.",
         "admins": "Admins can do a lot of thing, and moderate the game they have access to admin commands and some other stuff.",
