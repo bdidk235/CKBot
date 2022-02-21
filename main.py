@@ -59,7 +59,7 @@ async def rickroll(ctx, amount:int = 10):
     try:
         searches = ["rickroll", "never gonna give you up"]
         search = random.choice(searches)
-        videos = extras.youtube_search(search, amount, true)
+        videos = extras.youtube_search(search, amount, True)
         await ctx.send(random.choice(videos))
     except Exception:
         traceback.print_exc() 
