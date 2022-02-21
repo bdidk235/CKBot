@@ -7,7 +7,7 @@ def youtube_search(search, max_results:int = 10, rickroll:bool = False):
 
     for i in range(len(searchVideos.result()['search_result'])):
         if rickroll and searchVideos.result()['search_result'][i]["title"].find("not "):
-            
+            return
         videos.append(searchVideos.result()['search_result'][i]["link"])
 
     return videos
