@@ -18,9 +18,12 @@ def main(token):
                 disnake.OptionChoice("Are you just an FAQ Bot?", "faq"),
                 disnake.OptionChoice("Can I use you privately?", "private"),
                 disnake.OptionChoice("Is There a Stealing Problem?", "stealing"),
+                disnake.OptionChoice("Who is Amogus?", "amogus"),
+                disnake.OptionChoice("Who is BruhKoli?", "bruhkoli"),
                 disnake.OptionChoice("Who is Creatorkill?", "creatorkill"),
                 disnake.OptionChoice("What Admins do?", "admins"),
-                disnake.OptionChoice("Yoy?", "yoy"),
+                disnake.OptionChoice("What does Bobo Mean?", "bobo"),
+                disnake.OptionChoice("What does yoy Mean?", "yoy"),
                 disnake.OptionChoice("Do You Suck at everything?", "suck"),
                 disnake.OptionChoice("Do You Suck at something?", "suck2"),
                 disnake.OptionChoice("Are you an Idiot?", "idiot"),
@@ -32,22 +35,26 @@ def main(token):
         if question == "faq":
             await ctx.send("I can also randomly rickroll you!")
             try:
-                searches = ["rickroll", "never gonna give you up"]
+                searches = ["rickroll", "rick roll", "never gonna give you up"]
                 search = random.choice(searches)
-                videos = extras.youtube_search(search, 10, True)
+                videos = extras.youtube_search(search, 25)
                 await ctx.send(random.choice(videos))
             except Exception:
                 traceback.print_exc()
-            return 
+            await ctx.send("Here's your random rickroll, Enjoy!")
+            return
 
         answers = {
-            "bot": "I'm a bot made for <@628260543588859904> because he's cool by <@622670618822967296> for the Generic RPG Game Server.",
+            "bot": "I'm a bot made for Creatorkill because he's cool by BruhKoli mainly for the Generic RPG Game Server.",
             "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
             "private": "You can use message me and I will still work with the commands.",
             "stealing": "Maybe? Hopefully not!",
-            "creatorkill": "A guy who does stuff.",
+            "amogus": "Amogus a.k.a. KonradRon2 is the Owner of Generic RPG Game.",
+            "bruhkoli": "BruhKoli is the developer of CKBot and also develops for the game and other projects.",
+            "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
             "admins": "Admins can do a lot of thing, and moderate the game they have access to admin commands and some other stuff.",
-            "yoy": "yoy :smiley: :smiley: :smiley:",
+            "bobo": "Bobo :rofl:",
+            "yoy": "yoy :smiley: are :smiley: the :smiley: best :smiley:",
             "suck": "It's not a rickroll, Trust me! https://www.youtube.com/watch?v=dQw4w9WgXcQ",
             "suck2": "You suck at using me, You couldn't have scrolled down here!",
             "idiot": "You are probably The REAL Idiot or but maybe I am...",
@@ -67,28 +74,11 @@ def main(token):
             videos = extras.youtube_search(search, amount)
             await ctx.send(random.choice(videos))
         except Exception:
-            traceback.print_exc() 
-
-    @client.slash_command(
-        description = "A random rickroll.",
-        options = [
-            disnake.Option("amount", "Amount of Possabilities", disnake.OptionType.integer)
-        ]
-    )
-    async def rickroll(ctx, amount:int = 10):
-        try:
-            searches = ["rickroll", "never gonna give you up"]
-            search = random.choice(searches)
-            videos = extras.youtube_search(search, amount)
-            await ctx.send(random.choice(videos))
-        except Exception:
-            traceback.print_exc() 
+            traceback.print_exc()
 
     @client.event
     async def on_ready():
-        print(
-            f"{client.user} is ready!"
-        )
+        print(f"{client.user} is ready!")
 
     client.run(token)
 
