@@ -1,14 +1,7 @@
 from youtubesearchpython import SearchVideos
 
 def youtube_search(search, max_results:int = 10):
-    searchVideos = SearchVideos(search, mode = "dict", max_results = max_results)
-
-    videos = []
-
-    for i in range(len(searchVideos.result()['search_result'])):
-        videos.append(searchVideos.result()['search_result'][i]["link"])
-
-    return videos
+    return [video for video in SearchVideos(search, mode = "dict", max_results = max_results).result()['search_result']]
 
 class Element:
     def __init__(self, *, header, short_desc=None, long_desc=None, elements=None):
