@@ -3,6 +3,8 @@ import asyncio
 import disnake
 import random
 import traceback
+from enum import Enum
+from disnake.enums import *
 from disnake.ext import commands
 import extras
 
@@ -23,7 +25,6 @@ def main(token):
                 disnake.OptionChoice("Who is Creatorkill?", "creatorkill"),
                 disnake.OptionChoice("What Admins do?", "admins"),
                 disnake.OptionChoice("What does Bobo Mean?", "bobo"),
-                disnake.OptionChoice("What does yoy Mean?", "yoy"),
                 disnake.OptionChoice("Do You Suck at everything?", "suck"),
                 disnake.OptionChoice("Do You Suck at something?", "suck2"),
                 disnake.OptionChoice("Are you an Idiot?", "idiot"),
@@ -41,7 +42,6 @@ def main(token):
                 await ctx.send(random.choice(videos))
             except Exception:
                 traceback.print_exc()
-            await ctx.send("Here's your random rickroll, Enjoy!")
             return
 
         answers = {
@@ -54,13 +54,18 @@ def main(token):
             "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
             "admins": "Admins can do a lot of thing, and moderate the game they have access to admin commands and some other stuff.",
             "bobo": "Bobo :rofl:",
-            "yoy": "yoy :smiley: are :smiley: the :smiley: best :smiley:",
             "suck": "It's not a rickroll, Trust me! https://www.youtube.com/watch?v=dQw4w9WgXcQ",
             "suck2": "You suck at using me, You couldn't have scrolled down here!",
             "idiot": "You are probably The REAL Idiot or but maybe I am...",
             "why": "Why not?",
         }
         await ctx.send(answers[question])
+
+    @client.slash_command(
+        description = "yoy"
+    )
+    async def yoy(ctx):
+        await ctx.send("yoy <:yoy1:943929050097938453><:yoy2:943929050093748255>")
 
     @client.slash_command(
         description = "Randomly finds a video on your search.",
