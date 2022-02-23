@@ -79,7 +79,7 @@ def main(token):
     )
     async def videosearch(ctx, search:str, amount:int = 10):
         try:
-            videos = extras.youtube_search(search, amount)
+            videos = extras.youtube_search(search, min(amount, 50))
             found_videos = ""
             for index, video in enumerate(videos):
                 title = video["title"]
