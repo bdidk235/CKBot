@@ -10,7 +10,7 @@ from disnake.enums import *
 from disnake.ext import commands
 import extras
 
-def main(token, feedback_url):
+def main(token):
     client = commands.Bot(sync_commands = True)
 
     @client.slash_command(
@@ -104,28 +104,6 @@ def main(token, feedback_url):
         except Exception:
             traceback.print_exc()
 
-    @client.slash_command(
-        description = "Send feedback for the bot or the game.",
-        options = [
-            disnake.Option("feedback", "Feedback", disnake.OptionType.string, True)
-        ]
-    )
-    async def feedback(ctx, feedback:str):
-        await ctx.send("Thanks for your feedback.")
-        print(f"Feedback from {ctx.author}: {feedback}")
-        if feedback_url:
-            data = {
-                "embeds": [
-                    {
-                        "description": feedback,
-                        "author": {
-                            "name": ctx.author
-                        }
-                    }
-                ]
-            }
-            requests.get(feedback_url, data = json.dumps(data))
-
     @client.event
     async def on_command_error(ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
@@ -138,4 +116,4 @@ def main(token, feedback_url):
     client.run(token)
 
 if __name__ == "__main__":
-    main(str(os.environ.get("bot_token")), str(os.environ.get("feedback_url")))
+    main(str(os.environ.get("bot_token")))
