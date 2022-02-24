@@ -3,6 +3,7 @@ import json
 import asyncio
 import disnake
 import random
+import string
 import requests
 import traceback
 from enum import Enum
@@ -13,6 +14,44 @@ import extras
 def main(token):
     client = commands.Bot(sync_commands = True)
 
+    answers = {
+        "bot": "I'm a bot made for Creatorkill because he's cool by BruhKoli mainly for the Generic RPG Game Server.",
+        "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
+        "bruhkoli": "BruhKoli is the developer of CKBot and also develops for the game and other projects.",
+        "private": "You can use message me and I will still work with the commands.",
+        "stealing": "Maybe? Hopefully not!",
+        "amogus": "Amogus a.k.a. KonradRon2 is the Owner of Generic RPG Game.",
+        "ron": "Ron.",
+        "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
+        "admins": "Admins can do a lot of thing, and moderate the game they have access to admin commands and some other stuff.",
+        "bobo": "Bobo :rofl:",
+        "suck": "It's not a rickroll, Trust me! <https://www.youtube.com/watch?v=dQw4w9WgXcQ>",
+        "suck2": "You suck at using me, You couldn't have scrolled down here!",
+        "idiot": "You are probably The REAL Idiot or but maybe I am...",
+        "why": "Why not?",
+    }
+
+    speach_types = [
+        "Yes",
+        "No",
+        "I'm not smart",
+        "What you think you are?",
+        "I met a person before!",
+        "NO, YOU THATS COMPLETELY WRONG!",
+        "WHERE IS {username}, I CANT FIND THEM!",
+        "You are an idiot!",
+        "{username} PLEASE STOP!",
+        "no u",
+        "I don't steal, I ask for it!",
+        "I'm stupid",
+        "My gosh, All of them are on!",
+        "THIS IS SO IRONIC",
+        "START RUNNING NOW!",
+        "Ok.",
+        "Cancel it.",
+        "Cancelled",
+    ]
+
     @client.slash_command(
         description = "Frequently Asked questions.",
         options = [
@@ -22,8 +61,8 @@ def main(token):
                 disnake.OptionChoice("Who is BruhKoli?", "bruhkoli"),
                 disnake.OptionChoice("Are you just an FAQ Bot?", "faq"),
                 disnake.OptionChoice("Can I use you privately?", "private"),
-                
                 disnake.OptionChoice("Is There a Stealing Problem?", "stealing"),
+                disnake.OptionChoice("Who is Ron?", "ron"),
                 disnake.OptionChoice("Who is Amogus?", "amogus"),
                 disnake.OptionChoice("Who is Creatorkill?", "creatorkill"),
                 disnake.OptionChoice("What Admins do?", "admins"),
@@ -44,24 +83,10 @@ def main(token):
                 videos = extras.youtube_search(search, 25)
                 await ctx.send(random.choice(videos)["link"])
             except Exception:
+                await ctx.send("A Totally Random Rickroll: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
                 traceback.print_exc()
             return
 
-        answers = {
-            "bot": "I'm a bot made for Creatorkill because he's cool by BruhKoli mainly for the Generic RPG Game Server.",
-            "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
-            "bruhkoli": "BruhKoli is the developer of CKBot and also develops for the game and other projects.",
-            "private": "You can use message me and I will still work with the commands.",
-            "stealing": "Maybe? Hopefully not!",
-            "amogus": "Amogus a.k.a. KonradRon2 is the Owner of Generic RPG Game.",
-            "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
-            "admins": "Admins can do a lot of thing, and moderate the game they have access to admin commands and some other stuff.",
-            "bobo": "Bobo :rofl:",
-            "suck": "It's not a rickroll, Trust me! https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-            "suck2": "You suck at using me, You couldn't have scrolled down here!",
-            "idiot": "You are probably The REAL Idiot or but maybe I am...",
-            "why": "Why not?",
-        }
         await ctx.send(answers[question])
 
     @client.slash_command(
@@ -91,7 +116,7 @@ def main(token):
             traceback.print_exc()
 
     @client.slash_command(
-        description = "Randomly find a youtube video you've searched for.",
+        description = "Randomly finds a youtube video you've searched for.",
         options = [
             disnake.Option("search", "Video Search", disnake.OptionType.string, True),
             disnake.Option("amount", "Max Amount of Possible Videos", disnake.OptionType.integer)
@@ -100,9 +125,36 @@ def main(token):
     async def videofinder(ctx, search:str, amount:int = 10):
         try:
             videos = extras.youtube_search(search, amount)
-            await ctx.send("Here's what I found when searching " + search + ": " + random.choice(videos)["link"])
+            await ctx.send("Here's what I found when searching for " + search + ": " + random.choice(videos)["link"])
         except Exception:
             traceback.print_exc()
+
+    @client.slash_command(
+        description = "Chat with a dumbass bot that can only say yes or no randomly.",
+        options = [
+            disnake.Option("question", "Question", disnake.OptionType.string, True)
+        ]
+    )
+    async def chat(ctx, question:str):
+        if question.lower().find("i run") != -1:
+            await ctx.send("START RUNNING NOW!")
+            return
+        elif question.lower().find("i die") != -1:
+            await ctx.send("No")
+            return
+        elif question.lower().find("not die") != -1 or question.lower().find("yoy") != -1:
+            await ctx.send("Yes")
+            return
+        await ctx.send(speach_types[int(hash(question.lower()) / 4) % len(speach_types)].replace("{username}", ctx.author.name))
+
+    @client.slash_command(
+        description = "This is a mess!",
+        options = [
+            disnake.Option("length", "Length of String", disnake.OptionType.integer)
+        ]
+    )
+    async def mess(ctx, length:int = None):
+        await ctx.send(extras.unique_random_unicode(length or random.randint(8, 40)))
 
     @client.event
     async def on_command_error(ctx, error):

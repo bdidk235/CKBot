@@ -1,4 +1,10 @@
+import random
 from youtubesearchpython import SearchVideos
+
+def unique_random_unicode(length):
+    random_ints = random.sample(range(0x07FF), length)
+    random_unicodes = [chr(x) for x in random_ints]
+    return u"".join(random_unicodes)
 
 def youtube_search(search, max_results:int = 10):
     return [video for video in SearchVideos(search, mode = "dict", max_results = max_results).result()['search_result']]
