@@ -166,6 +166,7 @@ def main(token):
         ]
     )
     async def mess(ctx, length:int = None):
+        length = min(length, 2000)
         await ctx.send(extras.unique_random_unicode(length or random.randint(8, 40)))
 
     @client.slash_command(
