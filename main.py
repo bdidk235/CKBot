@@ -17,7 +17,9 @@ def main(token):
     answers = {
         "bot": "I'm a bot made for Creatorkill because he's cool by BruhKoli mainly for the Generic RPG Game Server.",
         "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
+        "who": "I'm abot, Made by a person",
         "bruhkoli": "BruhKoli is the developer of CKBot and also develops for the game and other projects.",
+        "banana": "In Creatorkill's Basement.",
         "private": "You can use message me and I will still work with the commands.",
         "stealing": "Maybe? Hopefully not!",
         "amogus": "Amogus a.k.a. KonradRon2 is the Owner of Generic RPG Game.",
@@ -52,6 +54,15 @@ def main(token):
         "Cancelled",
     ]
 
+    jumpscares = [
+        "https://c.tenor.com/gc2I86KDqdcAAAAC/dog-dog-jumpscare.gif",
+        "https://c.tenor.com/XzI2BOGPFSoAAAAC/sogga-big-floppa.gif",
+        "https://c.tenor.com/4H2xYTlwAtoAAAAC/markiplier-jumpscare.gif",
+        "https://c.tenor.com/QMK7win-WuAAAAAM/gaster-wd-gaster.gif",
+        "https://c.tenor.com/528bXYG_XwMAAAAM/jump-scare.gif",
+        "https://c.tenor.com/NwbFwibnhn0AAAAM/the-rock-the-rock-jumpscare.gif",
+    ]
+
     @client.slash_command(
         description = "Frequently Asked questions.",
         options = [
@@ -59,6 +70,7 @@ def main(token):
                 disnake.OptionChoice("What are you?", "bot"),
                 disnake.OptionChoice("How are you made?", "bot_creation"),
                 disnake.OptionChoice("Who is BruhKoli?", "bruhkoli"),
+                disnake.OptionChoice("Where is the Banana?", "banana"),
                 disnake.OptionChoice("Are you just an FAQ Bot?", "faq"),
                 disnake.OptionChoice("Can I use you privately?", "private"),
                 disnake.OptionChoice("Is There a Stealing Problem?", "stealing"),
@@ -70,6 +82,7 @@ def main(token):
                 disnake.OptionChoice("Do You Suck at everything?", "suck"),
                 disnake.OptionChoice("Do You Suck at something?", "suck2"),
                 disnake.OptionChoice("Are you an Idiot?", "idiot"),
+                disnake.OptionChoice("Who is You?", "who"),
                 disnake.OptionChoice("Why?", "why"),
             ])
         ]
@@ -155,6 +168,14 @@ def main(token):
     )
     async def mess(ctx, length:int = None):
         await ctx.send(extras.unique_random_unicode(length or random.randint(8, 40)))
+
+    @client.slash_command(
+        description = "Totally not a jumpscare."
+    )
+    async def jumpscare(ctx):
+        await ctx.send("Boo!")
+        await asyncio.sleep(0.5)
+        await ctx.send(random.choice(jumpscares))
 
     @client.event
     async def on_command_error(ctx, error):
