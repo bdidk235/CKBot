@@ -46,7 +46,6 @@ def main(token):
         "no u",
         "I don't steal, I ask for it!",
         "I'm stupid",
-        "My gosh, All of them are on!",
         "THIS IS SO IRONIC",
         "START RUNNING NOW!",
         "Ok.",
@@ -158,7 +157,7 @@ def main(token):
         elif question.lower().find("not die") != -1 or question.lower().find("yoy") != -1:
             await ctx.send("Yes")
             return
-        await ctx.send(speach_types[int(hash(question.lower()) / 4) % len(speach_types)].replace("{username}", ctx.author.name))
+        await ctx.send(speach_types[int(hash(question.lower()) / 4) % len(speach_types)].replace("{username}", ctx.author.tag))
 
     @client.slash_command(
         description = "This is a mess!",
