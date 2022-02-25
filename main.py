@@ -1,18 +1,19 @@
 import os
 import json
+import string
+import random
 import asyncio
 import disnake
-import random
-import string
 import requests
 import traceback
+import base64 as b64
 from enum import Enum
 from disnake.enums import *
 from disnake.ext import commands
 import extras
 
 def main(token):
-    client = commands.Bot(sync_commands = True)
+    bot = commands.Bot(sync_commands = True)
 
     answers = {
         "bot": "I'm a bot made for Creatorkill because he's cool by BruhKoli mainly for the Generic RPG Game Server.",
@@ -22,8 +23,8 @@ def main(token):
         "banana": "In Creatorkill's Basement.",
         "private": "You can use message me and I will still work with the commands.",
         "stealing": "Maybe? Hopefully not!",
-        "amogus": "Amogus a.k.a. KonradRon2 is the Owner of Generic RPG Game.",
         "ron": "Ron.",
+        "amogus": "Amogus a.k.a. KonradRon2 is the Owner of Generic RPG Game.",
         "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
         "admins": "Admins can do a lot of thing, and moderate the game they have access to admin commands and some other stuff.",
         "bobo": "Bobo :rofl:",
@@ -36,6 +37,7 @@ def main(token):
     speach_types = [
         "Yes",
         "No",
+        "Maybe",
         "I'm not smart",
         "What you think you are?",
         "I met a person before!",
@@ -54,15 +56,17 @@ def main(token):
     ]
 
     jumpscares = [
-        "https://c.tenor.com/gc2I86KDqdcAAAAC/dog-dog-jumpscare.gif",
-        "https://c.tenor.com/XzI2BOGPFSoAAAAC/sogga-big-floppa.gif",
-        "https://c.tenor.com/4H2xYTlwAtoAAAAC/markiplier-jumpscare.gif",
-        "https://c.tenor.com/QMK7win-WuAAAAAM/gaster-wd-gaster.gif",
-        "https://c.tenor.com/528bXYG_XwMAAAAM/jump-scare.gif",
-        "https://c.tenor.com/NwbFwibnhn0AAAAM/the-rock-the-rock-jumpscare.gif",
+        "https://tenor.com/view/dog-dog-jumpscare-jumpscare-jumpscare-gif-the-dog-gif-23747153",
+        "https://tenor.com/view/sogga-big-floppa-caracal-floppa-big-soggus-gif-23364768",
+        "https://tenor.com/view/markiplier-jumpscare-punch-fnaf-gif-23353403",
+        "https://tenor.com/view/gaster-wd-gaster-undertale-undertale-gaster-gaster-jumpscare-gif-24147829",
+        "https://tenor.com/view/jump-scare-gif-18504612",
+        "https://tenor.com/view/the-rock-the-rock-jumpscare-the-rock-sussy-gif-24038148",
+        "https://tenor.com/view/omori-omori-sunny-sunny-omori-jumpscare-gif-24352720",
+        "https://tenor.com/view/among-us-amogus-jumpscare-jumpscare-gif-among-us-sus-gif-24082720",
     ]
 
-    @client.slash_command(
+    @bot.slash_command(
         description = "Frequently Asked questions.",
         options = [
             disnake.Option("question", "What is your question?", disnake.OptionType.string, True, choices = [
@@ -86,35 +90,35 @@ def main(token):
             ])
         ]
     )
-    async def faq(ctx, question: str):
+    async def faq(inter, question: str):
         if question == "faq":
-            await ctx.send("I can also randomly rickroll you!")
+            await inter.send("I can also randomly rickroll you!")
             try:
                 searches = ["rickroll", "rick roll", "never gonna give you up"]
                 search = random.choice(searches)
                 videos = extras.youtube_search(search, 25)
-                await ctx.send(random.choice(videos)["link"])
+                await inter.send(random.choice(videos)["link"])
             except Exception:
-                await ctx.send("A Totally Random Rickroll: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+                await inter.send("A Totally Random Rickroll: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
                 traceback.print_exc()
             return
 
-        await ctx.send(answers[question])
+        await inter.send(answers[question])
 
-    @client.slash_command(
+    @bot.slash_command(
         description = "yoy"
     )
-    async def yoy(ctx):
-        await ctx.send("yoy <:yoy1:943929050097938453><:yoy2:943929050093748255>")
+    async def yoy(inter):
+        await inter.send("yoy <:yoy1:943929050097938453><:yoy2:943929050093748255>")
 
-    @client.slash_command(
+    @bot.slash_command(
         description = "Shows youtube videos you've searched for.",
         options = [
             disnake.Option("search", "Video Search", disnake.OptionType.string, True),
             disnake.Option("amount", "Max Amount of Videos", disnake.OptionType.integer)
         ]
     )
-    async def videosearch(ctx, search:str, amount:int = 10):
+    async def videosearch(inter, search:str, amount:int = 10):
         try:
             videos = extras.youtube_search(search, min(amount, 50))
             found_videos = ""
@@ -123,70 +127,101 @@ def main(token):
                 link = video["link"]
                 found_videos += f"{index + 1}: [{title}]({link})\n"
             embed = disnake.Embed(title = f"Results for {search}:", description = found_videos)
-            await ctx.send(embed = embed)
+            await inter.send(embed = embed)
         except Exception:
             traceback.print_exc()
 
-    @client.slash_command(
+    @bot.slash_command(
         description = "Randomly finds a youtube video you've searched for.",
         options = [
             disnake.Option("search", "Video Search", disnake.OptionType.string, True),
             disnake.Option("amount", "Max Amount of Possible Videos", disnake.OptionType.integer)
         ]
     )
-    async def videofinder(ctx, search:str, amount:int = 10):
+    async def videofinder(inter, search:str, amount:int = 10):
         try:
             videos = extras.youtube_search(search, amount)
-            await ctx.send("Here's what I found when searching for " + search + ": " + random.choice(videos)["link"])
+            await inter.send("Here's what I found when searching for " + search + ": " + random.choice(videos)["link"])
         except Exception:
             traceback.print_exc()
 
-    @client.slash_command(
-        description = "Chat with a dumbass bot that can only say yes or no randomly.",
+    @bot.slash_command(
+        description = "Chat with a dumbass bot that can only say stuff randomly.",
         options = [
             disnake.Option("question", "Question", disnake.OptionType.string, True)
         ]
     )
-    async def chat(ctx, question:str):
-        if question.lower().find("i run") != -1:
-            await ctx.send("START RUNNING NOW!")
+    async def chat(inter, question:str):
+        if question.lower().find("gay") != -1:
+            await inter.send("Maybe")
             return
-        elif question.lower().find("i die") != -1:
-            await ctx.send("No")
+        elif question.lower().find("i run") != -1:
+            await inter.send("START RUNNING NOW!")
+            return
+        elif question.lower().find("i die") != -1 or ((question.lower().find("not like") != -1 or question.lower().find("dislike") != -1 or question.lower().find("hate") != -1) and question.lower().find("yoy") != -1):
+            await inter.send("No")
             return
         elif question.lower().find("not die") != -1 or question.lower().find("yoy") != -1:
-            await ctx.send("Yes")
+            await inter.send("Yes")
             return
-        await ctx.send(speach_types[int(hash(question.lower()) / 4) % len(speach_types)].replace("{username}", ctx.author.tag))
+        await inter.send(speach_types[int(hash(question.lower()) / 4) % len(speach_types)].replace("{username}", inter.author.tag))
 
-    @client.slash_command(
+    @bot.slash_command(
         description = "This is a mess!",
         options = [
             disnake.Option("length", "Length of String", disnake.OptionType.integer)
         ]
     )
-    async def mess(ctx, length:int = None):
+    async def mess(inter, length:int = None):
         length = min(length, 2000)
-        await ctx.send(extras.unique_random_unicode(length or random.randint(8, 40)))
+        await inter.send(extras.unique_random_unicode(length or random.randint(8, 40)))
 
-    @client.slash_command(
+    @bot.slash_command(
         description = "Totally not a jumpscare."
     )
-    async def jumpscare(ctx):
-        await ctx.send("Boo!")
+    async def jumpscare(inter):
+        await inter.send("Boo!")
         await asyncio.sleep(0.5)
-        await ctx.send(random.choice(jumpscares))
+        await inter.send(random.choice(jumpscares))
 
-    @client.event
-    async def on_command_error(ctx, error):
+    @bot.slash_command()
+    async def base64(inter):
+        pass
+
+    @base64.sub_command(
+        description = "Encode Base64.",
+        options = [
+            disnake.Option("text", "Text", disnake.OptionType.string, True)
+        ]
+    )
+    async def encode(inter, text:str):
+        try:
+            await inter.send(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
+        except Exception:
+            await inter.send("Cannot encode the text.")
+
+    @base64.sub_command(
+        description = "Decode Base64.",
+        options = [
+            disnake.Option("text", "Text", disnake.OptionType.string, True)
+        ]
+    )
+    async def decode(inter, text:str):
+        try:
+            await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
+        except Exception:
+            await inter.send("Cannot decode the text.")
+
+    @bot.event
+    async def on_command_error(inter, error):
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f"This command is on cooldown, you can use it again in {round(error.retry_after)} seconds.")
+            await inter.send(f"This command is on cooldown, you can use it again in {round(error.retry_after)} seconds.")
 
-    @client.event
+    @bot.event
     async def on_ready():
-        print(f"{client.user} is ready!")
+        print(f"{bot.user} is ready!")
 
-    client.run(token)
+    bot.run(token)
 
 if __name__ == "__main__":
     main(str(os.environ.get("bot_token")))
