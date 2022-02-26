@@ -16,6 +16,7 @@ def main(token):
     bot = commands.Bot(sync_commands = True)
 
     answers = {
+        "where": "Short Answer: Tired because of too much work, Long Answer: Type /where for more information.",
         "bot": "I'm a bot made for Creatorkill because he's cool by BruhKoli mainly for the Generic RPG Game Server.",
         "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
         "who": "I'm abot, Made by a person",
@@ -70,6 +71,7 @@ def main(token):
         description = "Frequently Asked questions.",
         options = [
             disnake.Option("question", "What is your question?", disnake.OptionType.string, True, choices = [
+                disnake.OptionChoice("WHERE IS HE?", "where"),
                 disnake.OptionChoice("What are you?", "bot"),
                 disnake.OptionChoice("How are you made?", "bot_creation"),
                 disnake.OptionChoice("Who is BruhKoli?", "bruhkoli"),
@@ -211,6 +213,14 @@ def main(token):
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
             await inter.send("Cannot decode the text.")
+
+    @bot.slash_command( 
+        description = "Where is he actually?"
+    )
+    async def where(inter, text:str):
+        await inter.send("I will no longer be able to do what I wanted for a while because of \"them\" hope you understand why I want to take a break.")
+        await inter.send("Here's a random video to cheer you up: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        await inter.send("I unironically like this song so don't get mad at me!")
 
     @bot.event
     async def on_command_error(inter, error):
