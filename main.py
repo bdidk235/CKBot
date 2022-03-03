@@ -52,7 +52,7 @@ def main(token):
         "START RUNNING NOW!",
         "Ok.",
         "Cancel it.",
-        "Cancelled",
+        "You're Cancelled!",
     ]
 
     jumpscares = [
@@ -165,7 +165,7 @@ def main(token):
         elif question.lower().find("not die") != -1 or question.lower().find("not nsfw") != -1 or question.lower().find("no nsfw") != -1 or question.lower().find("yoy") != -1:
             await inter.send("Yes")
             return
-        await inter.send(speach_types[int(hash(question.lower()) / 4) % len(speach_types)].replace("{username}", inter.author.tag))
+        await inter.send(speach_types[hash(question) % len(speach_types)].replace("{username}", inter.author.tag))
 
     @bot.slash_command(
         description = "This is a mess!",
@@ -221,6 +221,14 @@ def main(token):
         await inter.send("If you are intrested, This is bdidk235's Favorite Music Video: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>!")
         await asyncio.sleep(2)
         await inter.send("bdidk235 unironically likes this song so don't get mad at him!")
+
+    @bot.event
+    async def on_message(message):
+        if message.author.id == bot.user.id:
+            return
+
+        if bot.user.mentioned_in(message):
+            await message.channel.send(random.choice(speach_types))
 
     @bot.event
     async def on_command_error(inter, error):
