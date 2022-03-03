@@ -4,7 +4,6 @@ import string
 import random
 import asyncio
 import disnake
-import requests
 import traceback
 import base64 as b64
 from enum import Enum
@@ -16,11 +15,11 @@ def main(token):
     bot = commands.Bot(sync_commands = True)
 
     answers = {
-        "where": "Short Answer: Tired because of too much work, Long Answer: Type /where for more information.",
-        "bot": "I'm a bot made for Creatorkill because he's cool by BruhKoli mainly for the Generic RPG Game Server.",
+        "where": "BruhKoli will be gone for a long time.",
+        "bot": "I'm a bot made for Creatorkill because he's cool by bdidk235 mainly for the Generic RPG Game Server.",
         "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
         "who": "I'm abot, Made by a person",
-        "bruhkoli": "BruhKoli is the developer of CKBot and also develops for the game and other projects.",
+        "bdidk235": "bdidk235 is the developer of CKBot and also develops for the game and other projects.",
         "banana": "In Creatorkill's Basement.",
         "private": "You can use message me and I will still work with the commands.",
         "stealing": "Maybe? Hopefully not!",
@@ -74,7 +73,7 @@ def main(token):
                 disnake.OptionChoice("WHERE IS HE?", "where"),
                 disnake.OptionChoice("What are you?", "bot"),
                 disnake.OptionChoice("How are you made?", "bot_creation"),
-                disnake.OptionChoice("Who is BruhKoli?", "bruhkoli"),
+                disnake.OptionChoice("Who is bdidk235?", "bdidk235"),
                 disnake.OptionChoice("Where is the Banana?", "banana"),
                 disnake.OptionChoice("Are you just an FAQ Bot?", "faq"),
                 disnake.OptionChoice("Can I use you privately?", "private"),
@@ -160,10 +159,10 @@ def main(token):
         elif question.lower().find("i run") != -1:
             await inter.send("START RUNNING NOW!")
             return
-        elif question.lower().find("i die") != -1 or ((question.lower().find("not like") != -1 or question.lower().find("dislike") != -1 or question.lower().find("hate") != -1) and question.lower().find("yoy") != -1):
+        elif question.lower().find("i die") != -1 or ((question.lower().find("not like") != -1 or question.lower().find("dislike") != -1 or question.lower().find("hate") != -1) and question.lower().find("yoy") != -1) or (question.lower().find("nsfw") != -1 and not (question.lower().find("not nsfw") != -1 or question.lower().find("no nsfw") != -1)):
             await inter.send("No")
             return
-        elif question.lower().find("not die") != -1 or question.lower().find("yoy") != -1:
+        elif question.lower().find("not die") != -1 or question.lower().find("not nsfw") != -1 or question.lower().find("no nsfw") != -1 or question.lower().find("yoy") != -1:
             await inter.send("Yes")
             return
         await inter.send(speach_types[int(hash(question.lower()) / 4) % len(speach_types)].replace("{username}", inter.author.tag))
@@ -217,10 +216,11 @@ def main(token):
     @bot.slash_command( 
         description = "Where is he actually?"
     )
-    async def where(inter, text:str):
-        await inter.send("I will no longer be able to do what I wanted for a while because of \"them\" hope you understand why I want to take a break.")
-        await inter.send("Here's a random video to cheer you up: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-        await inter.send("I unironically like this song so don't get mad at me!")
+    async def where(inter):
+        await inter.send("Even tho bdidk235 is BruhKoli, bdidk235 doesn't like BruhKoli that much because he's used to bdidk235.")
+        await inter.send("If you are intrested, This is bdidk235's Favorite Music Video: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>!")
+        await asyncio.sleep(2)
+        await inter.send("bdidk235 unironically likes this song so don't get mad at him!")
 
     @bot.event
     async def on_command_error(inter, error):
