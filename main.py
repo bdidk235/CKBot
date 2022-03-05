@@ -165,7 +165,7 @@ def main(token):
         elif question.lower().find("not die") != -1 or question.lower().find("not nsfw") != -1 or question.lower().find("no nsfw") != -1 or question.lower().find("yoy") != -1:
             await inter.send("Yes")
             return
-        await inter.send(speach_types[hash(question) % len(speach_types)].replace("{username}", inter.author.tag))
+        await inter.send(speach_types[hash(question.replace(" ", "")) % len(speach_types)].replace("{username}", inter.author.tag))
 
     @bot.slash_command(
         description = "This is a mess!",
@@ -253,7 +253,7 @@ def main(token):
                 elif question.lower().find("not die") != -1 or question.lower().find("not nsfw") != -1 or question.lower().find("no nsfw") != -1 or question.lower().find("yoy") != -1:
                     await message.channel.send("Yes")
                     return
-                await message.channel.send(speach_types[hash(question) % len(speach_types)].replace("{username}", f"<@!{message.author.id}>"))
+                await message.channel.send(speach_types[hash(question.replace(" ", "")) % len(speach_types)].replace("{username}", f"<@!{message.author.id}>").replace(f"<@!{bot.user.id}>", ""))
 
     @bot.event
     async def on_command_error(inter, error):
