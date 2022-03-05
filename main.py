@@ -213,6 +213,15 @@ def main(token):
         except Exception:
             await inter.send("Cannot decode the text.")
 
+    @base64.sub_command(
+        description = "Helps with Research.",
+        options = [
+            disnake.Option("search", "Search", disnake.OptionType.string, True)
+        ]
+    )
+    async def research(inter, text:str):
+        await inter.send("Found Nothing.")
+
     @bot.slash_command( 
         description = "Where is he actually?"
     )
@@ -228,7 +237,23 @@ def main(token):
             return
 
         if bot.user.mentioned_in(message):
-            await message.channel.send(random.choice(speach_types))
+            if message.content == f"<@!{bot.user.id}>":
+                await message.channel.send(random.choice(speach_types))
+            else:
+                question = message.content
+                if question.lower().find("gay") != -1:
+                    await message.channel.send("Maybe")
+                    return
+                elif question.lower().find("i run") != -1:
+                    await message.channel.send("START RUNNING NOW!")
+                    return
+                elif question.lower().find("i die") != -1 or ((question.lower().find("not like") != -1 or question.lower().find("dislike") != -1 or question.lower().find("hate") != -1) and question.lower().find("yoy") != -1) or (question.lower().find("nsfw") != -1 and not (question.lower().find("not nsfw") != -1 or question.lower().find("no nsfw") != -1)):
+                    await message.channel.send("No")
+                    return
+                elif question.lower().find("not die") != -1 or question.lower().find("not nsfw") != -1 or question.lower().find("no nsfw") != -1 or question.lower().find("yoy") != -1:
+                    await message.channel.send("Yes")
+                    return
+                await message.channel.send(speach_types[hash(question) % len(speach_types)].replace("{username}", message.author.tag))
 
     @bot.event
     async def on_command_error(inter, error):
