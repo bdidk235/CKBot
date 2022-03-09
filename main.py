@@ -213,13 +213,13 @@ def main(token):
         except Exception:
             await inter.send("Cannot decode the text.")
 
-    @base64.sub_command(
+    @bot.slash_command(
         description = "Helps with Research.",
         options = [
             disnake.Option("search", "Search", disnake.OptionType.string, True)
         ]
     )
-    async def research(inter, text:str):
+    async def research(inter, search:str):
         await inter.send("Found Nothing.")
 
     @bot.slash_command( 
