@@ -220,7 +220,7 @@ def main(token):
         ]
     )
     async def research(inter, search:str):
-        await inter.send("Found Nothing.")
+        await inter.send("Found Nothing, Please Try Again!")
 
     @bot.slash_command( 
         description = "Where is he actually?"
