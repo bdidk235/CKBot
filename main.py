@@ -18,7 +18,7 @@ def main(token):
         "where": "BruhKoli will be gone for a long time.",
         "bot": "I'm a bot made for Creatorkill because he's cool by bdidk235 mainly for the Generic RPG Game Server.",
         "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
-        "who": "I'm abot, Made by a person",
+        "who": "I'm a bot, Made by a person!",
         "bdidk235": "bdidk235 is the developer of CKBot and also develops for the game and other projects.",
         "banana": "In Creatorkill's Basement.",
         "private": "You can use message me and I will still work with the commands.",
@@ -116,7 +116,7 @@ def main(token):
         description = "Shows youtube videos you've searched for.",
         options = [
             disnake.Option("search", "Video Search", disnake.OptionType.string, True),
-            disnake.Option("amount", "Max Amount of Videos", disnake.OptionType.integer)
+            disnake.Option("amount", "Max Amount", disnake.OptionType.integer)
         ]
     )
     async def videosearch(inter, search:str, amount:int = 10):
@@ -136,7 +136,7 @@ def main(token):
         description = "Randomly finds a youtube video you've searched for.",
         options = [
             disnake.Option("search", "Video Search", disnake.OptionType.string, True),
-            disnake.Option("amount", "Max Amount of Possible Videos", disnake.OptionType.integer)
+            disnake.Option("amount", "Max Amount", disnake.OptionType.integer)
         ]
     )
     async def videofinder(inter, search:str, amount:int = 10):
@@ -170,12 +170,12 @@ def main(token):
     @bot.slash_command(
         description = "This is a mess!",
         options = [
-            disnake.Option("length", "Length of String", disnake.OptionType.integer)
+            disnake.Option("length", "Length", disnake.OptionType.integer, True)
         ]
     )
-    async def mess(inter, length:int = None):
+    async def mess(inter, length:int):
         length = min(length, 2000)
-        await inter.send(extras.unique_random_unicode(length or random.randint(8, 40)))
+        await inter.send(extras.unique_random_unicode(length))
 
     @bot.slash_command(
         description = "Totally not a jumpscare."
