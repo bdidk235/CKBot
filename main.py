@@ -13,7 +13,7 @@ import extras
 
 def main(token):
     bot = commands.Bot(sync_commands = True)
-    bot.change_presence(activity = discord.Game(name = "CKBot"))
+    bot.change_presence(activity = disnake.Game(name = "CKBot"))
 
     answers = {
         "where": "BruhKoli will be gone for a long time.",
