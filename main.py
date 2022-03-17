@@ -262,7 +262,7 @@ def main(token):
 
     @bot.event
     async def on_ready():
-        await bot.change_presence(activity = disnake.Game(name = "Getting Under It with BruhKoli"))
+        await bot.change_presence(activity = disnake.Game(name = "Getting Under It"))
         print(f"{bot.user} is ready!")
 
     bot.run(token)
