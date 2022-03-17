@@ -13,7 +13,6 @@ import extras
 
 def main(token):
     bot = commands.Bot(sync_commands = True)
-    bot.change_presence(activity = disnake.Game(name = "CKBot"))
 
     answers = {
         "where": "BruhKoli will be gone for a long time.",
@@ -263,6 +262,7 @@ def main(token):
 
     @bot.event
     async def on_ready():
+        await bot.change_presence(activity = disnake.Game(name = "CKBot"))
         print(f"{bot.user} is ready!")
 
     bot.run(token)
