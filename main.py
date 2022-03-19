@@ -5,6 +5,7 @@ import random
 import asyncio
 import disnake
 import traceback
+import googlesearch
 import base64 as b64
 from enum import Enum
 from disnake.enums import *
@@ -216,11 +217,23 @@ def main(token):
     @bot.slash_command(
         description = "Helps with Research.",
         options = [
-            disnake.Option("search", "Search", disnake.OptionType.string, True)
+            disnake.Option("search", "Search", disnake.OptionType.string, True),
+            disnake.Option("amount", "Max Amount", disnake.OptionType.integer)
         ]
     )
-    async def research(inter, search:str):
-        await inter.send("Found Nothing, Please Try Again!")
+    async def research(inter, search:str, amount:int = 10):
+        try:
+            searches = googlesearch.search(search, min(amount, 25), advanced = True)
+            found_searches = ""
+            for index, gsearch in enumerate(searches):
+                title = gsearch.title
+                link = gsearch.url
+                found_searches += f"{index + 1}: [{title}]({link})\n"
+            embed = disnake.Embed(title = f"Results for {search}:", description = found_searches)
+            await inter.send(embed = embed)
+        except Exception:
+            await inter.send("Found Nothing, Please Try Again!")
+            traceback.print_exc()
 
     @bot.slash_command( 
         description = "Where is he actually?"
