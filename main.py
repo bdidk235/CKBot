@@ -3,11 +3,11 @@ import json
 import string
 import random
 import asyncio
-import disnake
 import traceback
 import googlesearch
 import base64 as b64
 from enum import Enum
+from disnake import *
 from disnake.enums import *
 from disnake.ext import commands
 import extras
@@ -16,23 +16,13 @@ def main(token):
     bot = commands.Bot(sync_commands = True)
 
     answers = {
-        "where": "BruhKoli will be gone for a long time.",
         "bot": "I'm a bot made for Creatorkill because he's cool by bdidk235 mainly for the Generic RPG Game Server.",
         "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
-        "who": "I'm a bot, Made by a person!",
         "bdidk235": "bdidk235 is the developer of CKBot and also develops for the game and other projects.",
+        "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
         "banana": "In Creatorkill's Basement.",
         "private": "You can use message me and I will still work with the commands.",
         "stealing": "Maybe? Hopefully not!",
-        "ron": "Ron.",
-        "amogus": "Amogus a.k.a. KonradRon2 is the Owner of Generic RPG Game.",
-        "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
-        "admins": "Admins can do a lot of thing, and moderate the game they have access to admin commands and some other stuff.",
-        "bobo": "Bobo :rofl:",
-        "suck": "It's not a rickroll, Trust me! <https://www.youtube.com/watch?v=dQw4w9WgXcQ>",
-        "suck2": "You suck at using me, You couldn't have scrolled down here!",
-        "idiot": "You are probably The REAL Idiot or but maybe I am...",
-        "why": "Why not?",
     }
 
     speach_types = [
@@ -70,29 +60,22 @@ def main(token):
     @bot.slash_command(
         description = "Frequently Asked questions.",
         options = [
-            disnake.Option("question", "What is your question?", disnake.OptionType.string, True, choices = [
-                disnake.OptionChoice("WHERE IS HE?", "where"),
-                disnake.OptionChoice("What are you?", "bot"),
-                disnake.OptionChoice("How are you made?", "bot_creation"),
-                disnake.OptionChoice("Who is bdidk235?", "bdidk235"),
-                disnake.OptionChoice("Where is the Banana?", "banana"),
-                disnake.OptionChoice("Are you just an FAQ Bot?", "faq"),
-                disnake.OptionChoice("Can I use you privately?", "private"),
-                disnake.OptionChoice("Is There a Stealing Problem?", "stealing"),
-                disnake.OptionChoice("Who is Ron?", "ron"),
-                disnake.OptionChoice("Who is Amogus?", "amogus"),
-                disnake.OptionChoice("Who is Creatorkill?", "creatorkill"),
-                disnake.OptionChoice("What Admins do?", "admins"),
-                disnake.OptionChoice("What does Bobo Mean?", "bobo"),
-                disnake.OptionChoice("Do You Suck at everything?", "suck"),
-                disnake.OptionChoice("Do You Suck at something?", "suck2"),
-                disnake.OptionChoice("Are you an Idiot?", "idiot"),
-                disnake.OptionChoice("Who is You?", "who"),
-                disnake.OptionChoice("Why?", "why"),
+            Option("question", "What is your question?", OptionType.string, True, choices = [
+                OptionChoice("What are you?", "bot"),
+                OptionChoice("How are you made?", "bot_creation"),
+                OptionChoice("Who is bdidk235?", "bdidk235"),
+                OptionChoice("Who is Creatorkill?", "creatorkill"),
+                OptionChoice("Where is the Banana?", "banana"),
+                OptionChoice("Are you just an FAQ Bot?", "faq"),
+                OptionChoice("Can I use you privately?", "private"),
+                OptionChoice("Is There a Stealing Problem?", "stealing"),
             ])
         ]
     )
-    async def faq(inter, question: str):
+    async def faq(
+        inter,
+        question: str
+    ):
         if question == "faq":
             await inter.send("I can also randomly rickroll you!")
             try:
@@ -116,11 +99,15 @@ def main(token):
     @bot.slash_command(
         description = "Shows youtube videos you've searched for.",
         options = [
-            disnake.Option("search", "Video Search", disnake.OptionType.string, True),
-            disnake.Option("amount", "Max Amount", disnake.OptionType.integer)
+            Option("search", "Video Search", OptionType.string, True),
+            Option("amount", "Max Amount", OptionType.integer)
         ]
     )
-    async def videosearch(inter, search:str, amount:int = 10):
+    async def videosearch(
+        inter,
+        search:str,
+        amount:int = 10
+    ):
         try:
             videos = extras.youtube_search(search, min(amount, 50))
             found_videos = ""
@@ -128,7 +115,7 @@ def main(token):
                 title = video["title"]
                 link = video["link"]
                 found_videos += f"{index + 1}: [{title}]({link})\n"
-            embed = disnake.Embed(title = f"Results for {search}:", description = found_videos)
+            embed = Embed(title = f"Results for {search}:", description = found_videos)
             await inter.send(embed = embed)
         except Exception:
             traceback.print_exc()
@@ -136,11 +123,15 @@ def main(token):
     @bot.slash_command(
         description = "Randomly finds a youtube video you've searched for.",
         options = [
-            disnake.Option("search", "Video Search", disnake.OptionType.string, True),
-            disnake.Option("amount", "Max Amount", disnake.OptionType.integer)
+            Option("search", "Video Search", OptionType.string, True),
+            Option("amount", "Max Amount", OptionType.integer)
         ]
     )
-    async def videofinder(inter, search:str, amount:int = 10):
+    async def videofinder(
+        inter,
+        search: str,
+        amount: int = 10
+    ):
         try:
             videos = extras.youtube_search(search, amount)
             await inter.send("Here's what I found when searching for " + search + ": " + random.choice(videos)["link"])
@@ -150,10 +141,13 @@ def main(token):
     @bot.slash_command(
         description = "Chat with a dumbass bot that can only say stuff randomly.",
         options = [
-            disnake.Option("question", "Question", disnake.OptionType.string, True)
+            Option("question", "Question", OptionType.string, True)
         ]
     )
-    async def chat(inter, question:str):
+    async def chat(
+        inter,
+        question: str
+    ):
         if question.lower().find("gay") != -1:
             await inter.send("Maybe")
             return
@@ -171,10 +165,13 @@ def main(token):
     @bot.slash_command(
         description = "This is a mess!",
         options = [
-            disnake.Option("length", "Length", disnake.OptionType.integer, True)
+            Option("length", "Length", OptionType.integer, True)
         ]
     )
-    async def mess(inter, length:int):
+    async def mess(
+        inter,
+        length: int
+    ):
         length = min(length, 2000)
         await inter.send(extras.unique_random_unicode(length))
 
@@ -183,7 +180,7 @@ def main(token):
     )
     async def jumpscare(inter):
         await inter.send("Boo!")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.25)
         await inter.send(random.choice(jumpscares))
 
     @bot.slash_command()
@@ -193,10 +190,13 @@ def main(token):
     @base64.sub_command(
         description = "Encode Base64.",
         options = [
-            disnake.Option("text", "Text", disnake.OptionType.string, True)
+            Option("text", "Text", OptionType.string, True)
         ]
     )
-    async def encode(inter, text:str):
+    async def encode(
+        inter,
+        text: str
+    ):
         try:
             await inter.send(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
@@ -205,10 +205,13 @@ def main(token):
     @base64.sub_command(
         description = "Decode Base64.",
         options = [
-            disnake.Option("text", "Text", disnake.OptionType.string, True)
+            Option("text", "Text", OptionType.string, True)
         ]
     )
-    async def decode(inter, text:str):
+    async def decode(
+        inter,
+        text: str
+    ):
         try:
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
@@ -217,11 +220,15 @@ def main(token):
     @bot.slash_command(
         description = "Helps with Research.",
         options = [
-            disnake.Option("search", "Search", disnake.OptionType.string, True),
-            disnake.Option("amount", "Max Amount", disnake.OptionType.integer)
+            Option("search", "Search", OptionType.string, True),
+            Option("amount", "Max Amount", OptionType.integer)
         ]
     )
-    async def research(inter, search:str, amount:int = 10):
+    async def research(
+        inter,
+        search: str,
+        amount: int = 10
+    ):
         try:
             searches = googlesearch.search(search, min(amount, 25), advanced = True)
             found_searches = ""
@@ -229,7 +236,7 @@ def main(token):
                 title = gsearch.title
                 link = gsearch.url
                 found_searches += f"{index + 1}: [{title}]({link})\n"
-            embed = disnake.Embed(title = f"Results for {search}:", description = found_searches)
+            embed = Embed(title = f"Results for {search}:", description = found_searches)
             await inter.send(embed = embed)
         except Exception:
             await inter.send("Found Nothing, Please Try Again!")
@@ -269,13 +276,16 @@ def main(token):
                 await message.channel.send(speach_types[hash(question.replace(f"<@!{bot.user.id}>", "").replace(" ", "")) % len(speach_types)].replace("$username", f"<@!{message.author.id}>"))
 
     @bot.event
-    async def on_command_error(inter, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            await inter.send(f"This command is on cooldown, you can use it again in {round(error.retry_after)} seconds.")
+    async def on_command_error(
+        inter,
+        exception
+    ):
+        if isinstance(exception, commands.CommandOnCooldown):
+            await inter.send(f"This command is on cooldown, you can use it again in {round(exception.retry_after)} seconds.")
 
     @bot.event
     async def on_ready():
-        await bot.change_presence(activity = disnake.Game(name = "Getting Under It"))
+        await bot.change_presence(activity = Game(name = "Getting Under It"))
         print(f"{bot.user} is ready!")
 
     bot.run(token)
