@@ -13,7 +13,7 @@ from disnake.ext import commands
 import extras
 
 def main(token):
-    bot = commands.Bot(sync_commands = True)
+    bot = commands.Bot(command_prefix = commands.when_mentioned, sync_commands = True)
 
     answers = {
         "bot": "I'm a bot made for Creatorkill because he's cool by bdidk235 mainly for the Generic RPG Server.",
@@ -73,7 +73,7 @@ def main(token):
         ]
     )
     async def faq(
-        inter,
+        inter: CommandInteraction,
         question: str
     ):
         if question == "faq":
@@ -93,7 +93,7 @@ def main(token):
     @bot.slash_command(
         description = "yoy"
     )
-    async def yoy(inter):
+    async def yoy(inter: CommandInteraction):
         await inter.send("yoy <:yoy1:943929050097938453><:yoy2:943929050093748255>")
 
     @bot.slash_command(
@@ -104,7 +104,7 @@ def main(token):
         ]
     )
     async def videosearch(
-        inter,
+        inter: CommandInteraction,
         search:str,
         amount:int = 10
     ):
@@ -128,7 +128,7 @@ def main(token):
         ]
     )
     async def videofinder(
-        inter,
+        inter: CommandInteraction,
         search: str,
         amount: int = 10
     ):
@@ -145,7 +145,7 @@ def main(token):
         ]
     )
     async def chat(
-        inter,
+        inter: CommandInteraction,
         question: str
     ):
         if question.lower().find("gay") != -1:
@@ -160,7 +160,7 @@ def main(token):
         elif question.lower().find("not die") != -1 or question.lower().find("not nsfw") != -1 or question.lower().find("no nsfw") != -1 or question.lower().find("yoy") != -1:
             await inter.send("Yes")
             return
-        await inter.send(speach_types[hash(question.replace(" ", "")) % len(speach_types)].replace("$username", inter.author.tag))
+        await inter.send(speach_types[hash(question.replace(" ", "")) % len(speach_types)].replace("$username", f"<@{inter.author.id}>"))
 
     @bot.slash_command(
         description = "This is a mess!",
@@ -169,7 +169,7 @@ def main(token):
         ]
     )
     async def mess(
-        inter,
+        inter: CommandInteraction,
         length: int
     ):
         length = min(length, 2000)
@@ -178,23 +178,24 @@ def main(token):
     @bot.slash_command(
         description = "Totally not a jumpscare."
     )
-    async def jumpscare(inter):
+    async def jumpscare(inter: CommandInteraction):
         await inter.send("Boo!")
         await asyncio.sleep(0.25)
         await inter.send(random.choice(jumpscares))
 
     @bot.slash_command()
-    async def base64(inter):
+    async def base64(inter: CommandInteraction):
         pass
 
     @base64.sub_command(
+        name = "encode",
         description = "Encode Base64.",
         options = [
             Option("text", "Text", OptionType.string, True)
         ]
     )
-    async def encode(
-        inter,
+    async def b64_encode(
+        inter: CommandInteraction,
         text: str
     ):
         try:
@@ -203,19 +204,35 @@ def main(token):
             await inter.send("Cannot encode the text.")
 
     @base64.sub_command(
+        name = "decode",
         description = "Decode Base64.",
         options = [
             Option("text", "Text", OptionType.string, True)
         ]
     )
-    async def decode(
-        inter,
+    async def b64_decode(
+        inter: CommandInteraction,
         text: str
     ):
         try:
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
             await inter.send("Cannot decode the text.")
+
+    @bot.message_command(name = "Base64 Encode")
+    async def message_b64_encode(inter: ApplicationCommandInteraction, message: Message):
+        text = message.content[::-1]
+        try:
+            await inter.response.send_message(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
+        except Exception:
+            await inter.response.send_message("Cannot encode the text.")
+    @bot.message_command(name = "Base64 Decode")
+    async def message_b64_decode(inter: ApplicationCommandInteraction, message: Message):
+        text = message.content[::-1]
+        try:
+            await inter.response.send_message(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
+        except Exception:
+            await inter.response.send_message("Cannot encode the text.")
 
     @bot.slash_command(
         description = "Helps with Research.",
@@ -225,7 +242,7 @@ def main(token):
         ]
     )
     async def research(
-        inter,
+        inter: CommandInteraction,
         search: str,
         amount: int = 10
     ):
@@ -245,14 +262,14 @@ def main(token):
     @bot.slash_command( 
         description = "Where is he actually?"
     )
-    async def where(inter):
+    async def where(inter: CommandInteraction):
         await inter.send("Even tho bdidk235 is BruhKoli, bdidk235 doesn't like BruhKoli that much because he's used to bdidk235.")
         await inter.send("If you are intrested, This is bdidk235's Favorite Music Video: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>!")
         await asyncio.sleep(2)
         await inter.send("bdidk235 unironically likes this song so don't get mad at him!")
 
     @bot.event
-    async def on_message(message):
+    async def on_message(message: Message):
         if message.author.id == bot.user.id:
             return
 
