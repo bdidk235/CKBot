@@ -280,7 +280,7 @@ def main(token):
         if message.author.id == bot.user.id:
             return
 
-        if bot.user.mentioned_in(message):
+        if bot.user.mentioned_in(message) or message.channel.type == ChannelType.private:
             if message.content == f"<@!{bot.user.id}>":
                 await message.channel.send(random.choice(speach_types))
             else:

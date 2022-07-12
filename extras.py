@@ -1,5 +1,6 @@
 import random
 from youtubesearchpython import SearchVideos
+from disnake import *
 
 def unique_random_unicode(length):
     random_ints = random.sample(range(0x07FF), length)
