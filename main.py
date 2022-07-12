@@ -201,7 +201,7 @@ def main(token):
         try:
             await inter.send(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.send("Cannot encode the text.")
+            await inter.response.send_message("Cannot encode the text.", ephemeral = True)
 
     @base64.sub_command(
         name = "decode",
@@ -217,22 +217,23 @@ def main(token):
         try:
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.send("Cannot decode the text.")
+            await inter.response.send_message("Cannot decode the text.", ephemeral = True)
 
     @bot.message_command(name = "Base64 Encode")
     async def message_b64_encode(inter: ApplicationCommandInteraction, message: Message):
         text = message.content[::-1]
         try:
-            await inter.response.send_message(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
+            await inter.send(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.response.send_message("Cannot encode the text.")
+            await inter.response.send_message("Cannot encode the text.", ephemeral = True)
+
     @bot.message_command(name = "Base64 Decode")
     async def message_b64_decode(inter: ApplicationCommandInteraction, message: Message):
         text = message.content[::-1]
         try:
-            await inter.response.send_message(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
+            await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.response.send_message("Cannot encode the text.")
+            await inter.response.send_message("Cannot encode the text.", ephemeral = True)
 
     @bot.slash_command(
         description = "Helps with Research.",
