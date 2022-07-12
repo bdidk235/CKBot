@@ -24,6 +24,7 @@ def main(token):
         "private": "You can use message me and I will still work with the commands.",
         "stealing": "Recently We have seen someone steal **air**, We will make sure to find who they are.",
         "like_me": "I like like you 🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫",
+        "sad": "Stay away from my man 😒",
     }
 
     speach_types = [
@@ -70,7 +71,7 @@ def main(token):
                 OptionChoice("Are you just an FAQ Bot?", "faq"),
                 OptionChoice("Can I use you privately?", "private"),
                 OptionChoice("Is There a Stealing Problem?", "stealing"),
-                OptionChoice("Do you like me?", "like me"),
+                OptionChoice("Do you like me?", "like_me"),
             ])
         ]
     )
@@ -79,18 +80,18 @@ def main(token):
         question: str
     ):
         if question == "faq":
-            await inter.send("I can also randomly rickroll you!")
+            await inter.send("I can also randomly rickroll you!", ephemeral = True)
             try:
                 searches = ["rickroll", "rick roll", "never gonna give you up"]
                 search = random.choice(searches)
                 videos = extras.youtube_search(search, 25)
-                await inter.send(random.choice(videos)["link"])
+                await inter.send(random.choice(videos)["link"], ephemeral = True)
             except Exception:
-                await inter.send("A Totally Random Rickroll: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+                await inter.send("A Totally Random Rickroll: https://www.youtube.com/watch?v=dQw4w9WgXcQ", ephemeral = True)
                 traceback.print_exc()
             return
 
-        await inter.send(answers[question])
+        await inter.send(answers[question], ephemeral = True)
 
     @bot.slash_command(
         description = "yoy"
@@ -203,7 +204,7 @@ def main(token):
         try:
             await inter.send(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.response.send_message("Cannot encode the text.", ephemeral = True)
+            await inter.send("Cannot encode the text.", ephemeral = True)
 
     @base64.sub_command(
         name = "decode",
@@ -219,7 +220,7 @@ def main(token):
         try:
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.response.send_message("Cannot decode the text.", ephemeral = True)
+            await inter.send("Cannot decode the text.", ephemeral = True)
 
     @bot.message_command(name = "Base64 Encode")
     async def message_b64_encode(inter: ApplicationCommandInteraction, message: Message):
@@ -227,7 +228,7 @@ def main(token):
         try:
             await inter.send(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.response.send_message("Cannot encode the text.", ephemeral = True)
+            await inter.send("Cannot encode the text.", ephemeral = True)
 
     @bot.message_command(name = "Base64 Decode")
     async def message_b64_decode(inter: ApplicationCommandInteraction, message: Message):
@@ -235,7 +236,7 @@ def main(token):
         try:
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.response.send_message("Cannot encode the text.", ephemeral = True)
+            await inter.send("Cannot encode the text.", ephemeral = True)
 
     @bot.slash_command(
         description = "Helps with Research.",
