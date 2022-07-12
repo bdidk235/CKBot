@@ -16,9 +16,9 @@ def main(token):
     bot = commands.Bot(sync_commands = True)
 
     answers = {
-        "bot": "I'm a bot made for Creatorkill because he's cool by bdidk235 mainly for the Generic RPG Game Server.",
+        "bot": "I'm a bot made for Creatorkill because he's cool by bdidk235 mainly for the Generic RPG Server.",
         "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
-        "bdidk235": "bdidk235 is the developer of CKBot and also develops for the game and other projects.",
+        "bdidk235": "bdidk235 is the developer of CKBot and also develops for the experience and other projects.",
         "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
         "banana": "In Creatorkill's Basement.",
         "private": "You can use message me and I will still work with the commands.",
@@ -285,7 +285,7 @@ def main(token):
 
     @bot.event
     async def on_ready():
-        await bot.change_presence(activity = Game(name = "Getting Under It"))
+        await bot.change_presence(activity = Game(name = "Untitled Server Game"))
         print(f"{bot.user} is ready!")
 
     bot.run(token)
