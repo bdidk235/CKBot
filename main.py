@@ -22,7 +22,8 @@ def main(token):
         "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
         "banana": "In Creatorkill's Basement.",
         "private": "You can use message me and I will still work with the commands.",
-        "stealing": "Maybe? Hopefully not!",
+        "stealing": "Recently We have seen someone steal **air**, We will make sure to find who they are.",
+        "like_me": "I like like you 🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫",
     }
 
     speach_types = [
@@ -69,6 +70,7 @@ def main(token):
                 OptionChoice("Are you just an FAQ Bot?", "faq"),
                 OptionChoice("Can I use you privately?", "private"),
                 OptionChoice("Is There a Stealing Problem?", "stealing"),
+                OptionChoice("Do you like me?", "like me"),
             ])
         ]
     )
