@@ -24,7 +24,8 @@ def main(token):
         "private": "You can use message me and I will still work with the commands.",
         "stealing": "Recently We have seen someone steal **air**, We will make sure to find who they are.",
         "like_me": "I like like you 🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫",
-        "sad": "Stay away from my man 😒",
+        "stay_away": "Stay away from me!",
+        "secret": "Don't let anyone know, Keep it a secret.",
     }
 
     speach_types = [
@@ -72,6 +73,8 @@ def main(token):
                 OptionChoice("Can I use you privately?", "private"),
                 OptionChoice("Is There a Stealing Problem?", "stealing"),
                 OptionChoice("Do you like me?", "like_me"),
+                OptionChoice("I wanna do something bad!", "stay_away"),
+                OptionChoice("I have a secret but I really wanna tell it!", "secret"),
             ])
         ]
     )
