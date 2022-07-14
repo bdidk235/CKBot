@@ -4,12 +4,23 @@ from youtubesearchpython import SearchVideos
 from disnake import *
 from disnake.ext import commands
 
-async def respond(bot: commands.Bot, re: Interaction, author, question: str, private: bool = False):
+def get_answer_from_faq(question: str):
+    lower_choices = [OptionChoice(answer.name.lower(), answer.value) for answer in main.faq_choices]
+    answer = [i for i, o in enumerate(lower_choices) if o.name == question.lower()]
+    
+    if answer != []:
+        return main.answers[main.faq_choices[answer[0]].value]
+        
+async def respond(bot: commands.Bot, re: Interaction, author, question: str, private: bool = False, command: bool = False):
     speech_type = main.all_speech_types
     if private:
         speech_type = main.speech_types
     response = None
-    if question.lower().find("gay") != -1:
+    if not command and question.startswith("/"):
+        response = "Failed commmand <:imagine:997168475594301490>"
+    elif faq := get_answer_from_faq(question):
+        response = faq
+    elif question.lower().find("gay") != -1:
         response = "<:chillbob:964329423232991282>"
     elif question.lower().find("i run") != -1:
         response = "START RUNNING NOW!"

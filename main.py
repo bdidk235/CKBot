@@ -121,6 +121,7 @@ def main(token):
         search: str,
         amount: int = 10
     ):
+        print(f"{inter.author}: /research search: {search} amount: {amount}")
         await inter.send("Searching...")
         try:
             searches = googlesearch.search(search, min(amount, 25), advanced = True)
@@ -147,6 +148,7 @@ def main(token):
         search:str,
         amount:int = 10
     ):
+        print(f"{inter.author}: /videosearch search: {search} amount: {amount}")
         await inter.send("Searching...")
         try:
             videos = extras.youtube_search(search, min(amount, 50))
@@ -173,6 +175,7 @@ def main(token):
         search: str,
         amount: int = 10
     ):
+        print(f"{inter.author}: /videofinder search: {search} amount: {amount}")
         await inter.send("Searching...")
         try:
             videos = extras.youtube_search(search, amount)
@@ -192,7 +195,7 @@ def main(token):
         inter: CommandInteraction,
         question: str
     ):
-        await extras.respond(bot, inter, inter.author, question)
+        await extras.respond(bot, inter, inter.author, question, command = True)
 
     @bot.slash_command(
         description = "This is a mess!",
@@ -267,28 +270,19 @@ def main(token):
         except Exception:
             await inter.send("Cannot encode the text.", ephemeral = True)
 
-    @bot.slash_command( 
-        description = "Where is he actually?"
-    )
-    async def where(inter: CommandInteraction):
-        await inter.send("Even tho bdidk235 is BruhKoli, bdidk235 doesn't like BruhKoli that much because he's used to bdidk235.")
-        await inter.send("If you are intrested, This is bdidk235's Favorite Music Video: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>!")
-        await asyncio.sleep(2)
-        await inter.send("bdidk235 unironically likes this song so don't get mad at him!")
-
     @bot.event
     async def on_message(message: Message):
         if message.author.id == bot.user.id:
             return
 
-        if bot.user.mentioned_in(message) or message.channel.type == ChannelType.private:
+        if bot.user.mentioned_in(message) or (private := message.channel.type == ChannelType.private):
             if message.content == f"<@!{bot.user.id}>":
                 speech_type = main.all_speech_types
-                if message.channel.type == ChannelType.private:
+                if private:
                     speech_type = main.speech_types
                 await message.channel.send(random.choice(speech_type))
             else:
-                await extras.respond(bot, message.channel, message.author, message.content, message.channel.type == ChannelType.private)
+                await extras.respond(bot, message.channel, message.author, message.content, private)
 
     @bot.event
     async def on_command_error(
