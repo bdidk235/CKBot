@@ -77,7 +77,7 @@ jumpscares = [
 ]
 
 def main(token):
-    bot = commands.Bot(intents = Intents(message_content = True), sync_commands = True)
+    bot = commands.Bot(intents = Intents(messages = True, message_content = True), sync_commands = True)
 
     @bot.slash_command(
         description = "Frequently Asked questions.",
@@ -286,6 +286,7 @@ def main(token):
                 speech_type = main.speech_types if private else main.all_speech_types
                 await message.channel.send(random.choice(speech_type))
             else:
+                await asyncio.sleep(0.8)
                 await extras.respond(bot, message.channel, message.author, message.content, private)
 
     @bot.event
