@@ -113,13 +113,7 @@ def main(token):
         description = "gaem"
     )
     async def gaem(inter: CommandInteraction):
-        await inter.send("You epic gamer.")
-
-    @bot.slash_command(
-        description = "Please, Stop!"
-    )
-    async def stop(inter: CommandInteraction):
-        await inter.send("Stop! <:stop:925028767712297021>")	
+        await inter.send("You epic gamer.")	
 
     @bot.slash_command(
         description = "Helps with Research.",
