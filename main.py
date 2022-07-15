@@ -1,6 +1,4 @@
 import os
-import json
-import string
 import random
 import asyncio
 import traceback
@@ -46,13 +44,13 @@ speech_types = [
     "I'm not smart",
     "What you think you are?",
     "I met a person before!",
-    "NO, YOU THATS COMPLETELY WRONG!",
+    "No. That's COMPLETELY WRONG!",
     "You are an idiot!",
-    "no u",
+    "Me",
     "I don't steal, I ask for it!",
     "I'm stupid",
-    "THIS IS SO IRONIC",
-    "START RUNNING NOW!",
+    "This is so ironic.",
+    "Gamer",
     "Ok.",
     "Cancel it.",
     "You're Cancelled!",
@@ -61,6 +59,8 @@ speech_types = [
 public_speech_types = [
     "WHERE IS $username, I CANT FIND THEM!",
     "$username PLEASE STOP!",
+    "$username WHAT IS WRONG WITH YOU?",
+    "hi $username :flushed:",
 ]
 
 all_speech_types = speech_types + public_speech_types
@@ -77,7 +77,7 @@ jumpscares = [
 ]
 
 def main(token):
-    bot = commands.Bot(sync_commands = True)
+    bot = commands.Bot(intents = Intents(message_content = True), sync_commands = True)
 
     @bot.slash_command(
         description = "Frequently Asked questions.",
@@ -110,6 +110,18 @@ def main(token):
         await inter.send("yoy <:yoy1:943929050097938453><:yoy2:943929050093748255>")
 
     @bot.slash_command(
+        description = "gaem"
+    )
+    async def gaem(inter: CommandInteraction):
+        await inter.send("You epic gamer.")
+
+    @bot.slash_command(
+        description = "Please, Stop!"
+    )
+    async def stop(inter: CommandInteraction):
+        await inter.send("Stop! <:stop:925028767712297021>")	
+
+    @bot.slash_command(
         description = "Helps with Research.",
         options = [
             Option("search", "Search", OptionType.string, True),
@@ -122,7 +134,7 @@ def main(token):
         amount: int = 10
     ):
         print(f"{inter.author}: /research search: {search} amount: {amount}")
-        await inter.send("Searching...")
+        await inter.response.defer()
         try:
             searches = googlesearch.search(search, min(amount, 25), advanced = True)
             found_searches = ""
@@ -131,9 +143,9 @@ def main(token):
                 link = gsearch.url
                 found_searches += f"{index + 1}: [{title}]({link})\n"
             embed = Embed(title = f"Results for {search}:", description = found_searches).set_footer(text = "Provided by Google")
-            await inter.edit_original_message(content = None, embed = embed)
+            await inter.send(embed = embed)
         except Exception:
-            await inter.edit_original_message(content = "Found Nothing, Please Try Again!")
+            await inter.send(content = "Found Nothing, Please Try Again!")
             traceback.print_exc()
 
     @bot.slash_command(
@@ -149,7 +161,7 @@ def main(token):
         amount:int = 10
     ):
         print(f"{inter.author}: /videosearch search: {search} amount: {amount}")
-        await inter.send("Searching...")
+        await inter.response.defer()
         try:
             videos = extras.youtube_search(search, min(amount, 50))
             found_videos = ""
@@ -158,9 +170,9 @@ def main(token):
                 link = video["link"]
                 found_videos += f"{index + 1}: [{title}]({link})\n"
             embed = Embed(title = f"Results for {search}:", description = found_videos).set_footer(text = "Provided by YouTube")
-            await inter.edit_original_message(content = None, embed = embed)
+            await inter.send(embed = embed)
         except Exception:
-            await inter.edit_original_message("Found Nothing, Please Try Again!")
+            await inter.send("Found Nothing, Please Try Again!")
             traceback.print_exc()
 
     @bot.slash_command(
@@ -176,13 +188,13 @@ def main(token):
         amount: int = 10
     ):
         print(f"{inter.author}: /videofinder search: {search} amount: {amount}")
-        await inter.send("Searching...")
+        await inter.response.defer()
         try:
             videos = extras.youtube_search(search, amount)
             link = random.choice(videos)["link"]
-            await inter.edit_original_message(content = f"Here's what I found when searching for {search}: {link}").set_footer(text = "Provided by YouTube")
+            await inter.send(f"Here's what I found when searching for {search}: {link}")
         except Exception:
-            await inter.edit_original_message("Found Nothing, Please Try Again!")
+            await inter.send("Found Nothing, Please Try Again!")
             traceback.print_exc()
 
     @bot.slash_command(
@@ -277,17 +289,15 @@ def main(token):
 
         if bot.user.mentioned_in(message) or (private := message.channel.type == ChannelType.private):
             if message.content == f"<@!{bot.user.id}>":
-                speech_type = main.all_speech_types
-                if private:
-                    speech_type = main.speech_types
+                speech_type = main.speech_types if private else main.all_speech_types
                 await message.channel.send(random.choice(speech_type))
             else:
                 await extras.respond(bot, message.channel, message.author, message.content, private)
 
     @bot.event
     async def on_command_error(
-        inter,
-        exception
+        inter: Interaction,
+        exception: Exception
     ):
         if isinstance(exception, commands.CommandOnCooldown):
             await inter.send(f"This command is on cooldown, you can use it again in {round(exception.retry_after)} seconds.")
