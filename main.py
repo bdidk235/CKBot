@@ -103,15 +103,11 @@ def main(token):
 
         await inter.send(answers[question], ephemeral = True)
 
-    @bot.slash_command(
-        description = "yoy"
-    )
+    @bot.slash_command(description = "yoy")
     async def yoy(inter: CommandInteraction):
         await inter.send("yoy <:yoy1:943929050097938453><:yoy2:943929050093748255>")
 
-    @bot.slash_command(
-        description = "gaem"
-    )
+    @bot.slash_command(description = "gaem")
     async def gaem(inter: CommandInteraction):
         await inter.send("You epic gamer.")	
 
@@ -216,9 +212,7 @@ def main(token):
         length = min(length, 2000)
         await inter.send(extras.unique_random_unicode(length))
 
-    @bot.slash_command(
-        description = "Totally not a jumpscare."
-    )
+    @bot.slash_command(description = "Totally not a jumpscare.")
     async def jumpscare(inter: CommandInteraction):
         await inter.send("Boo!")
         await asyncio.sleep(0.25)
