@@ -48,12 +48,13 @@ speech_types = [
     "You are an idiot!",
     "Me",
     "I don't steal, I ask for it!",
-    "I'm stupid",
+    "You stupid.",
     "This is so ironic.",
     "Gamer",
     "Ok.",
     "Cancel it.",
     "You're Cancelled!",
+    "What's 9 + 10?",
 ]
 
 public_speech_types = [
