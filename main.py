@@ -1,10 +1,12 @@
 import os
+import json
 import random
 import asyncio
+import requests
 import traceback
-import googlesearch
 import base64 as b64
 from enum import Enum
+import dateutil.parser as dp
 from disnake import *
 from disnake.enums import *
 from disnake.ext import commands
@@ -15,6 +17,7 @@ answers = {
     "bot_creation": "I'm made using Python with Disnake, You can also check out the [Source Code](https://github.com/bdidk235/CKBot) for this Bot.",
     "bdidk235": "bdidk235 is the developer of CKBot and also develops for the experience and other projects.",
     "creatorkill": "Creatorkill is a guy who does stuff and my name is based on his username because he's too cool to ignore.",
+    "unby6": "unby6 is who Creatorkill used to be, but now just pretends creatorkill never existed!",
     "banana": "In Creatorkill's Basement.",
     "private": "You can use message me and I will still work with the commands.",
     "stealing": "Recently We have seen someone steal **air**, We will make sure to find who they are.",
@@ -28,6 +31,7 @@ faq_choices = [
     OptionChoice("How are you made?", "bot_creation"),
     OptionChoice("Who is bdidk235?", "bdidk235"),
     OptionChoice("Who is Creatorkill?", "creatorkill"),
+    OptionChoice("Who is unby6?", "unby6"),
     OptionChoice("Where is the Banana?", "banana"),
     OptionChoice("Are you just an FAQ Bot?", "faq"),
     OptionChoice("Can I use you privately?", "private"),
@@ -81,6 +85,121 @@ def main(token):
     bot = commands.Bot(intents = Intents(messages = True, message_content = True), sync_commands = True)
 
     @bot.slash_command(
+        description = "Making as much of the Roblox API as possible!",
+        options = [
+            Option("data", "Data", OptionType.string, True, choices = [
+                OptionChoice("User", "user"),
+                OptionChoice("Experience", "experience"),
+            ]),
+            Option("id", "ID", OptionType.string, True)
+        ]
+    )
+    async def roblox(
+        inter: CommandInteraction,
+        data: str,
+        id: int
+    ):
+        print(f"{inter.author}: /roblox data: {data} id: {id}")
+        await inter.response.defer()
+        try:
+            name = "Name"
+            url = "https://roblox.com"
+            icon_url = Embed.Empty
+            info = "Info"
+            image = Embed.Empty
+            if data == "user":
+                if not id.strip().isdigit():
+                    username = requests.post(f"https://users.roblox.com/v1/usernames/users", json={"usernames": [id]})
+                    if username.status_code == 200:
+                        id = username.json()["data"][0]["id"]
+                    else:
+                        await inter.send("Username cannot be found. If you're sure it exists, Try again later!", ephemeral = True)
+                        return
+                user = requests.get(f"https://users.roblox.com/v1/users/{id}")
+                presence = requests.post("https://presence.roblox.com/v1/presence/users", json={"userIds": [id]})
+                username_history = requests.get(f"https://users.roblox.com/v1/users/{id}/username-history?limit=100&sortOrder=Asc")
+                if user.status_code == 200:
+                    user_data = user.json()
+                    presence_data = presence.json()["userPresences"][0] if presence.status_code == 200 else None
+                    username_history_data = username_history.json()["data"] if username_history.status_code == 200 else None
+                    badges = "[Verifed] " if user_data['hasVerifiedBadge'] else ""\
+                        + "[Banned] " if user_data['isBanned'] else ""
+                    name = f"{badges}{user_data['displayName']} (@{user_data['name']})"
+                    url = f"https://roblox.com/users/{id}/profile"
+                    icon_url = f"https://www.roblox.com/headshot-thumbnail/image?userId={id}&width=420&height=420&format=png"
+                    external_app_display_name = f"**External Display Name:** {user_data['externalAppDisplayName']}\n" if user_data['externalAppDisplayName'] else ""
+                    last_online = f"\n**Last Online:** <t:{int(dp.parse(presence_data['lastOnline']).timestamp())}:F>" if presence.status_code == 200 else ""
+                    previous_usernames = ""
+                    if username_history_data and len(username_history_data) > 0:
+                        previous_usernames = "\n**Previous Usernames:**\n"
+                        for index, username in enumerate(username_history_data):
+                            if index == len(username_history_data) - 1:
+                                previous_usernames += f"{username['name']}"
+                            else:
+                                previous_usernames += f"{username['name']}, "
+                    info = f"""{external_app_display_name}
+                    **Created:** <t:{int(dp.parse(user_data['created']).timestamp())}:F>{last_online}{previous_usernames}
+
+                    **Description:**
+                    {user_data['description'] if user_data['description'] and user_data['description'] != "" else "None"}"""
+                else:
+                    await inter.send("Failed to load user data!", ephemeral = True)
+                    return
+            elif data == "experience":
+                if not id.strip().isdigit():
+                    search = requests.get(f"https://games.roblox.com/v1/games/list?model.keyword={id}")
+                    if search.status_code == 200:
+                        id = search.json()["games"][0]["universeId"]
+                    else:
+                        await inter.send("Username cannot be found. If you're sure it exists, Try again later!", ephemeral = True)
+                        return
+                else:
+                    place_to_universe_id = requests.get(f"https://apis.roblox.com/universes/v1/places/{id}/universe")
+                    if place_to_universe_id.status_code == 200:
+                        id = place_to_universe_id.json()['universeId']
+                    else:
+                        await inter.send("Failed to get Universe ID from Place ID", ephemeral = True)
+                        return
+                universe = requests.get(f"https://games.roblox.com/v1/games?universeIds={id}")
+                universe_places = requests.get(f"https://api.roblox.com/universes/get-universe-places?universeId={id}")
+                if universe.status_code == 200:
+                    universe_data = universe.json()['data'][0]
+                    universe_places_data = universe_places.json()['Places'] if universe_places.status_code == 200 else None
+                    name = universe_data['name']
+                    url = f"https://roblox.com/games/{universe_data['rootPlaceId']}/Game"
+                    price = f"Price: {universe_data['price']}\n" if universe_data['price'] != None and universe_data['price'] > 0 else ""
+                    avatarType = "Player Choice" if universe_data['universeAvatarType'] == "PlayerChoice" else\
+                        "R15" if universe_data['universeAvatarType'] == "MorphToR15" else\
+                        "R6" if universe_data['universeAvatarType'] == "MorphToR6" else ""
+                    creator = ("[Verifed] " if universe_data['creator']['hasVerifiedBadge'] else "")\
+                        + (f"[@{universe_data['creator']['name']}](https://roblox.com/users/{universe_data['creator']['id']}/profile)\n" if universe_data['creator']['type'] == "User" else \
+                        f"[{universe_data['creator']['name']}](https://roblox.com/groups/{universe_data['creator']['id']}/Group)\n" if universe_data['creator']['type'] == "Group" else "Unknown")
+                    places = ""
+                    if universe_places_data:
+                        places = "\n\n**Places:**\n"
+                        for place in universe_places_data:
+                            places += f"[{place['Name']}](https://roblox.com/games/{place['PlaceId']}/Game)\n"
+                    info = f"""**Creator:** {creator}
+                    **Active:** {"{:,}".format(universe_data['playing'])}
+                    **Favorites:** {"{:,}".format(universe_data['favoritedCount'])}
+                    **Visits:** {"{:,}".format(universe_data['visits'])}
+                    **Created:** <t:{int(dp.parse(universe_data['created']).timestamp())}:F>
+                    **Last Updated:** <t:{int(dp.parse(universe_data['updated']).timestamp())}:F>
+                    **Max Players:** {"{:,}".format(universe_data['maxPlayers'])}
+                    **Genre:** {universe_data['genre']}
+
+                    **Avatar Type:** {avatarType}
+                    **Uncopylocked:** {universe_data['copyingAllowed']}
+                    **Description:**
+                    {universe_data['description'] if universe_data['description'] and universe_data['description'] != "" else "None"}{places}"""
+                else:
+                    await inter.send("Failed to load universe data!", ephemeral = True)
+                    return
+            await inter.send(embed = Embed(description = info).set_author(name = name, url = url, icon_url = icon_url).set_footer(text = f"Provided by Roblox, ID: {id}"))
+        except Exception:
+            traceback.print_exc()
+
+    @bot.slash_command(
         description = "Frequently Asked questions.",
         options = [
             Option("question", "What is your question?", OptionType.string, True, choices = faq_choices)
@@ -127,14 +246,7 @@ def main(token):
         print(f"{inter.author}: /research search: {search} amount: {amount}")
         await inter.response.defer()
         try:
-            searches = googlesearch.search(search, min(amount, 25), advanced = True)
-            found_searches = ""
-            for index, gsearch in enumerate(searches):
-                title = gsearch.title
-                link = gsearch.url
-                found_searches += f"{index + 1}: [{title}]({link})\n"
-            embed = Embed(title = f"Results for {search}:", description = found_searches).set_footer(text = "Provided by Google")
-            await inter.send(embed = embed)
+            await inter.send(embed = google_search_embed(search, amount))
         except Exception:
             await inter.send(content = "Found Nothing, Please Try Again!")
             traceback.print_exc()
@@ -154,14 +266,7 @@ def main(token):
         print(f"{inter.author}: /videosearch search: {search} amount: {amount}")
         await inter.response.defer()
         try:
-            videos = extras.youtube_search(search, min(amount, 50))
-            found_videos = ""
-            for index, video in enumerate(videos):
-                title = video["title"]
-                link = video["link"]
-                found_videos += f"{index + 1}: [{title}]({link})\n"
-            embed = Embed(title = f"Results for {search}:", description = found_videos).set_footer(text = "Provided by YouTube")
-            await inter.send(embed = embed)
+            await inter.send(embed = youtube_search_embed(search, amount))
         except Exception:
             await inter.send("Found Nothing, Please Try Again!")
             traceback.print_exc()
@@ -185,20 +290,8 @@ def main(token):
             link = random.choice(videos)["link"]
             await inter.send(f"Here's what I found when searching for {search}: {link}")
         except Exception:
-            await inter.send("Found Nothing, Please Try Again!")
+            await inter.send("Found Nothing, Please Try Again!", ephemeral = True)
             traceback.print_exc()
-
-    @bot.slash_command(
-        description = "Chat with a dumbass bot that can only say stuff randomly.",
-        options = [
-            Option("question", "Question", OptionType.string, True)
-        ]
-    )
-    async def chat(
-        inter: CommandInteraction,
-        question: str
-    ):
-        await extras.respond(bot, inter, inter.author, question, command = True)
 
     @bot.slash_command(
         description = "This is a mess!",
@@ -270,19 +363,6 @@ def main(token):
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
             await inter.send("Cannot encode the text.", ephemeral = True)
-
-    @bot.event
-    async def on_message(message: Message):
-        if message.author.id == bot.user.id:
-            return
-
-        if bot.user.mentioned_in(message) or (private := message.channel.type == ChannelType.private):
-            if message.content == f"<@!{bot.user.id}>":
-                speech_type = main.speech_types if private else main.all_speech_types
-                await message.channel.send(random.choice(speech_type))
-            else:
-                await asyncio.sleep(0.8)
-                await extras.respond(bot, message.channel, message.author, message.content, private)
 
     @bot.event
     async def on_command_error(
