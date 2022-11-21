@@ -90,6 +90,7 @@ def main(token):
             Option("data", "Data", OptionType.string, True, choices = [
                 OptionChoice("User", "user"),
                 OptionChoice("Experience", "experience"),
+                OptionChoice("Group", "group"),
             ]),
             Option("id", "ID", OptionType.string, True)
         ]
@@ -106,7 +107,6 @@ def main(token):
             url = "https://roblox.com"
             icon_url = Embed.Empty
             info = "Info"
-            image = Embed.Empty
             if data == "user":
                 if not id.strip().isdigit():
                     username = requests.post(f"https://users.roblox.com/v1/usernames/users", json={"usernames": [id]})
@@ -116,32 +116,32 @@ def main(token):
                         await inter.send("Username cannot be found. If you're sure it exists, Try again later!", ephemeral = True)
                         return
                 user = requests.get(f"https://users.roblox.com/v1/users/{id}")
-                presence = requests.post("https://presence.roblox.com/v1/presence/users", json={"userIds": [id]})
-                username_history = requests.get(f"https://users.roblox.com/v1/users/{id}/username-history?limit=100&sortOrder=Asc")
+                username_history = requests.get(f"https://users.roblox.com/v1/users/{id}/username-history?limit=100")
+                primary_role = requests.get(f"https://groups.roblox.com/v1/users/{id}/groups/primary/role")
                 if user.status_code == 200:
                     user_data = user.json()
-                    presence_data = presence.json()["userPresences"][0] if presence.status_code == 200 else None
                     username_history_data = username_history.json()["data"] if username_history.status_code == 200 else None
+                    primary_role_data = primary_role.json() if primary_role.content != None and primary_role.status_code == 200 else None
                     badges = "[Verifed] " if user_data['hasVerifiedBadge'] else ""\
                         + "[Banned] " if user_data['isBanned'] else ""
                     name = f"{badges}{user_data['displayName']} (@{user_data['name']})"
                     url = f"https://roblox.com/users/{id}/profile"
                     icon_url = f"https://www.roblox.com/headshot-thumbnail/image?userId={id}&width=420&height=420&format=png"
                     external_app_display_name = f"**External Display Name:** {user_data['externalAppDisplayName']}\n" if user_data['externalAppDisplayName'] else ""
-                    last_online = f"\n**Last Online:** <t:{int(dp.parse(presence_data['lastOnline']).timestamp())}:F>" if presence.status_code == 200 else ""
+                    primary_group = ""
+                    if primary_role_data:
+                        primary_group = f"""\n**Primary Group:** [{primary_role_data['group']['name']}](https://roblox.com/groups/{primary_role_data['group']['id']}/Group)
+                        **Primary Group Role:** {primary_role_data['role']['name']}"""
                     previous_usernames = ""
                     if username_history_data and len(username_history_data) > 0:
-                        previous_usernames = "\n**Previous Usernames:**\n"
+                        previous_usernames = "\n\n**Previous Usernames:**\n"
                         for index, username in enumerate(username_history_data):
-                            if index == len(username_history_data) - 1:
-                                previous_usernames += f"{username['name']}"
-                            else:
-                                previous_usernames += f"{username['name']}, "
-                    info = f"""{external_app_display_name}
-                    **Created:** <t:{int(dp.parse(user_data['created']).timestamp())}:F>{last_online}{previous_usernames}
-
-                    **Description:**
-                    {user_data['description'] if user_data['description'] and user_data['description'] != "" else "None"}"""
+                            previous_usernames += f"{username['name']}"
+                            if index != len(username_history_data) - 1:
+                                previous_usernames += ", "
+                    info = f"""**Description:**
+                    ```{user_data['description'] if user_data['description'] and user_data['description'] != "" else " "}```
+                    {external_app_display_name}**Created:** <t:{int(dp.parse(user_data['created']).timestamp())}:R>{primary_group}{previous_usernames}"""
                 else:
                     await inter.send("Failed to load user data!", ephemeral = True)
                     return
@@ -151,7 +151,7 @@ def main(token):
                     if search.status_code == 200:
                         id = search.json()["games"][0]["universeId"]
                     else:
-                        await inter.send("Username cannot be found. If you're sure it exists, Try again later!", ephemeral = True)
+                        await inter.send("An experience with that name cannot be found, Try again later!", ephemeral = True)
                         return
                 else:
                     place_to_universe_id = requests.get(f"https://apis.roblox.com/universes/v1/places/{id}/universe")
@@ -161,39 +161,104 @@ def main(token):
                         await inter.send("Failed to get Universe ID from Place ID", ephemeral = True)
                         return
                 universe = requests.get(f"https://games.roblox.com/v1/games?universeIds={id}")
-                universe_places = requests.get(f"https://api.roblox.com/universes/get-universe-places?universeId={id}")
+                universe_places = requests.get(f"https://develop.roblox.com/v1/universes/{id}/places?sortOrder=Asc&limit=100")
+                icon = requests.get(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={id}&size=150x150&format=Png")
                 if universe.status_code == 200:
                     universe_data = universe.json()['data'][0]
-                    universe_places_data = universe_places.json()['Places'] if universe_places.status_code == 200 else None
+                    universe_places_data = universe_places.json()['data'] if universe_places.status_code == 200 else None
+                    icon_data = icon.json()['data'][0] if icon.status_code == 200 else None
                     name = universe_data['name']
                     url = f"https://roblox.com/games/{universe_data['rootPlaceId']}/Game"
+                    if icon_data and icon_data['state'] == "Completed":
+                        icon_url = icon_data['imageUrl']
                     price = f"Price: {universe_data['price']}\n" if universe_data['price'] != None and universe_data['price'] > 0 else ""
                     avatarType = "Player Choice" if universe_data['universeAvatarType'] == "PlayerChoice" else\
                         "R15" if universe_data['universeAvatarType'] == "MorphToR15" else\
                         "R6" if universe_data['universeAvatarType'] == "MorphToR6" else ""
-                    creator = ("[Verifed] " if universe_data['creator']['hasVerifiedBadge'] else "")\
-                        + (f"[@{universe_data['creator']['name']}](https://roblox.com/users/{universe_data['creator']['id']}/profile)\n" if universe_data['creator']['type'] == "User" else \
+                    creator = ("[Verified] " if universe_data['creator']['hasVerifiedBadge'] else "") + (f"[@{universe_data['creator']['name']}](https://roblox.com/users/{universe_data['creator']['id']}/profile)\n" if universe_data['creator']['type'] == "User" else \
                         f"[{universe_data['creator']['name']}](https://roblox.com/groups/{universe_data['creator']['id']}/Group)\n" if universe_data['creator']['type'] == "Group" else "Unknown")
                     places = ""
                     if universe_places_data:
                         places = "\n\n**Places:**\n"
                         for place in universe_places_data:
-                            places += f"[{place['Name']}](https://roblox.com/games/{place['PlaceId']}/Game)\n"
-                    info = f"""**Creator:** {creator}
+                            places += f"[{place['name']}](https://roblox.com/games/{place['id']}/Game)\n"
+                    gearsGenres = ""
+                    if universe_data['allowedGearGenres'][0] != universe_data['genre']:
+                        gearsGenres = "\n**Gears Genres:** "
+                        for index, gear in enumerate(universe_data['allowedGearGenres']):
+                            gearsGenres += f"{gear}"
+                            if index != len(universe_data['allowedGearGenres']) - 1:
+                                gearsGenres += ", "
+                    gearsCategories = ""
+                    if len(universe_data['allowedGearCategories']) > 0:
+                        gearsCategories = "\n**Gears Categories:** "
+                        for index, gear in enumerate(universe_data['allowedGearCategories']):
+                            gearsGenres += f"{gear}"
+                            if index != len(universe_data['allowedGearCategories']) - 1:
+                                gearsGenres += ", "
+                    info = f"""**By {creator}**
+                    **Description:**
+                    ```{universe_data['description'] if universe_data['description'] and universe_data['description'] != "" else " "}```
                     **Active:** {"{:,}".format(universe_data['playing'])}
                     **Favorites:** {"{:,}".format(universe_data['favoritedCount'])}
                     **Visits:** {"{:,}".format(universe_data['visits'])}
-                    **Created:** <t:{int(dp.parse(universe_data['created']).timestamp())}:F>
-                    **Last Updated:** <t:{int(dp.parse(universe_data['updated']).timestamp())}:F>
-                    **Max Players:** {"{:,}".format(universe_data['maxPlayers'])}
-                    **Genre:** {universe_data['genre']}
+                    **Created:** <t:{int(dp.parse(universe_data['created']).timestamp())}:R>
+                    **Last Updated:** <t:{int(dp.parse(universe_data['updated']).timestamp())}:R>
+                    **Server Size:** {"{:,}".format(universe_data['maxPlayers'])}
+                    **Genre:** {universe_data['genre']}{gearsGenres}{gearsCategories}
 
                     **Avatar Type:** {avatarType}
-                    **Uncopylocked:** {universe_data['copyingAllowed']}
-                    **Description:**
-                    {universe_data['description'] if universe_data['description'] and universe_data['description'] != "" else "None"}{places}"""
+                    **Uncopylocked:** {"Yes" if universe_data['copyingAllowed'] else "No"}
+                    **Studio Access to APIs Allowed:** {"Yes" if universe_data['studioAccessToApisAllowed'] else "No"}{places}"""
                 else:
                     await inter.send("Failed to load universe data!", ephemeral = True)
+                    return
+            elif data == "group":
+                if not id.strip().isdigit():
+                    search = requests.get(f"https://groups.roblox.com/v1/groups/search/lookup?groupName={id}")
+                    if search.status_code == 200:
+                        id = search.json()["data"][0]["id"]
+                    else:
+                        await inter.send("A group with that name cannot be found, Try again later!", ephemeral = True)
+                        return
+                group = requests.get(f"https://groups.roblox.com/v1/groups/{id}")
+                roles = requests.get(f"https://groups.roblox.com/v1/groups/{id}/roles")
+                name_history = requests.get(f"https://groups.roblox.com/v1/groups/{id}/name-history?limit=100")
+                icon = requests.get(f"https://thumbnails.roblox.com/v1/groups/icons?groupIds={id}&size=150x150&format=Png")
+                if group.status_code == 200:
+                    group_data = group.json()
+                    roles_data = roles.json()['roles'] if roles.status_code == 200 else None
+                    name_history_data = name_history.json()["data"] if name_history.status_code == 200 else None
+                    icon_data = icon.json()['data'][0] if icon.status_code == 200 else None
+                    name = ("[Verifed] " if group_data['hasVerifiedBadge'] else "") + group_data['name']
+                    url = f"https://roblox.com/groups/{id}/Group"
+                    if icon_data and icon_data['state'] == "Completed":
+                        icon_url = icon_data['imageUrl']
+                    owner = "No One!"
+                    if group_data.get('owner'):
+                        owner = ("[Verifed] " if group_data['owner']['hasVerifiedBadge'] else "") + f"[{group_data['owner']['displayName']} (@{group_data['owner']['username']})](https://roblox.com/users/{group_data['owner']['userId']}/profile)\n"
+                    shout = ""
+                    if group_data['shout']:
+                        shout = f"**Shout:**\n'''{group_data['shout']['body']}'''" if group_data['shout']['body'] != "" else ""
+                    previous_names = ""
+                    if name_history_data and len(name_history_data) > 0:
+                        previous_names = "\n\n**Previous Usernames:**\n"
+                        for index, name in enumerate(name_history_data):
+                            previous_names += f"{name['name']}"
+                            if index != len(name_history_data) - 1:
+                                previous_names += ", "
+                    roles = ""
+                    if roles_data:
+                        roles = "\n\n**Roles:**\n"
+                        for role in roles_data:
+                            roles += f"{role['rank']}: {role['name']} ({role['memberCount']})\n"
+                    info = f"""**By {owner}**
+                    **Description:**
+                    ```{group_data['description'] if group_data['description'] and group_data['description'] != "" else " "}```
+                    **Members:** {group_data['memberCount']}{shout}
+                    **Public:** {group_data['publicEntryAllowed']}{previous_names}{roles}"""
+                else:
+                    await inter.send("Failed to load group data!", ephemeral = True)
                     return
             await inter.send(embed = Embed(description = info).set_author(name = name, url = url, icon_url = icon_url).set_footer(text = f"Provided by Roblox, ID: {id}"))
         except Exception:
