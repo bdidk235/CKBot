@@ -2,3 +2,4 @@ disnake==2.5.2
 youtube-search-python
 googlesearch-python
 requests
+python-dateutil
