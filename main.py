@@ -122,7 +122,7 @@ def main(token):
                     user_data = user.json()
                     username_history_data = username_history.json()["data"] if username_history.status_code == 200 else None
                     primary_role_data = primary_role.json() if primary_role.content != None and primary_role.status_code == 200 else None
-                    badges = "[Verifed] " if user_data['hasVerifiedBadge'] else ""\
+                    badges = "[Verified] " if user_data['hasVerifiedBadge'] else ""\
                         + "[Banned] " if user_data['isBanned'] else ""
                     name = f"{badges}{user_data['displayName']} (@{user_data['name']})"
                     url = f"https://roblox.com/users/{id}/profile"
@@ -230,13 +230,13 @@ def main(token):
                     roles_data = roles.json()['roles'] if roles.status_code == 200 else None
                     name_history_data = name_history.json()["data"] if name_history.status_code == 200 else None
                     icon_data = icon.json()['data'][0] if icon.status_code == 200 else None
-                    name = ("[Verifed] " if group_data['hasVerifiedBadge'] else "") + group_data['name']
+                    name = ("[Verified] " if group_data['hasVerifiedBadge'] else "") + group_data['name']
                     url = f"https://roblox.com/groups/{id}/Group"
                     if icon_data and icon_data['state'] == "Completed":
                         icon_url = icon_data['imageUrl']
                     owner = "No One!"
                     if group_data.get('owner'):
-                        owner = ("[Verifed] " if group_data['owner']['hasVerifiedBadge'] else "") + f"[{group_data['owner']['displayName']} (@{group_data['owner']['username']})](https://roblox.com/users/{group_data['owner']['userId']}/profile)\n"
+                        owner = ("[Verified] " if group_data['owner']['hasVerifiedBadge'] else "") + f"[{group_data['owner']['displayName']} (@{group_data['owner']['username']})](https://roblox.com/users/{group_data['owner']['userId']}/profile)\n"
                     shout = ""
                     if group_data['shout']:
                         shout = f"\n**Shout:**\n'''{group_data['shout']['body']}'''" if group_data['shout']['body'] != "" else ""
