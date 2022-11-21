@@ -239,7 +239,7 @@ def main(token):
                         owner = ("[Verifed] " if group_data['owner']['hasVerifiedBadge'] else "") + f"[{group_data['owner']['displayName']} (@{group_data['owner']['username']})](https://roblox.com/users/{group_data['owner']['userId']}/profile)\n"
                     shout = ""
                     if group_data['shout']:
-                        shout = f"**Shout:**\n'''{group_data['shout']['body']}'''" if group_data['shout']['body'] != "" else ""
+                        shout = f"\n**Shout:**\n'''{group_data['shout']['body']}'''" if group_data['shout']['body'] != "" else ""
                     previous_names = ""
                     if name_history_data and len(name_history_data) > 0:
                         previous_names = "\n\n**Previous Usernames:**\n"
@@ -255,8 +255,8 @@ def main(token):
                     info = f"""**By {owner}**
                     **Description:**
                     ```{group_data['description'] if group_data['description'] and group_data['description'] != "" else " "}```
-                    **Members:** {group_data['memberCount']}{shout}
-                    **Public:** {group_data['publicEntryAllowed']}{previous_names}{roles}"""
+                    **Members:** {group_data['memberCount']}
+                    **Public:** {group_data['publicEntryAllowed']}{shout}{previous_names}{roles}"""
                 else:
                     await inter.send("Failed to load group data!", ephemeral = True)
                     return
