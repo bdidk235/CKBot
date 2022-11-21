@@ -251,7 +251,8 @@ def main(token):
                     if roles_data:
                         roles = "\n\n**Roles:**\n"
                         for role in roles_data:
-                            roles += f"{role['rank']}: {role['name']} ({role['memberCount']})\n"
+                            if role['rank'] != 0 or role['memberCount'] != 0:
+                                roles += f"{role['rank']}: {role['name']} ({role['memberCount']})\n"
                     info = f"""**By {owner}**
                     **Description:**
                     ```{group_data['description'] if group_data['description'] and group_data['description'] != "" else " "}```
