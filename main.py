@@ -116,18 +116,27 @@ def main(token):
                         await inter.send("Username cannot be found. If you're sure it exists, Try again later!", ephemeral = True)
                         return
                 user = requests.get(f"https://users.roblox.com/v1/users/{id}")
+                friend_count = requests.get(f"https://friends.roblox.com/v1/users/{id}/friends/count")
                 username_history = requests.get(f"https://users.roblox.com/v1/users/{id}/username-history?limit=100")
                 primary_role = requests.get(f"https://groups.roblox.com/v1/users/{id}/groups/primary/role")
+                inventory_view = requests.get(f"https://inventory.roblox.com/v1/users/{id}/can-view-inventory")
                 if user.status_code == 200:
                     user_data = user.json()
-                    username_history_data = username_history.json()["data"] if username_history.status_code == 200 else None
+                    friend_count_data = friend_count.json() if friend_count.status_code == 200 else None
+                    username_history_data = username_history.json()['data'] if username_history.status_code == 200 else None
                     primary_role_data = primary_role.json() if primary_role.content != None and primary_role.status_code == 200 else None
+                    inventory_view_data = inventory_view.json() if inventory_view.status_code == 200 else None
                     badges = "[Verified] " if user_data['hasVerifiedBadge'] else ""\
                         + "[Banned] " if user_data['isBanned'] else ""
                     name = f"{badges}{user_data['displayName']} (@{user_data['name']})"
                     url = f"https://roblox.com/users/{id}/profile"
                     icon_url = f"https://www.roblox.com/headshot-thumbnail/image?userId={id}&width=420&height=420&format=png"
-                    external_app_display_name = f"**External Display Name:** {user_data['externalAppDisplayName']}\n" if user_data['externalAppDisplayName'] else ""
+                    friends = ""
+                    if friend_count_data:
+                        friends = f"**Friends:** {friend_count_data['count']}\n"
+                    public_inventory = ""
+                    if inventory_view_data:
+                        public_inventory = f"""\n**Public Inventory:** {"Yes" if inventory_view_data['canView'] else "No"}"""
                     primary_group = ""
                     if primary_role_data:
                         primary_group = f"""\n**Primary Group:** [{primary_role_data['group']['name']}](https://roblox.com/groups/{primary_role_data['group']['id']}/Group)
@@ -141,11 +150,13 @@ def main(token):
                                 previous_usernames += ", "
                     info = f"""**Description:**
                     ```{user_data['description'] if user_data['description'] and user_data['description'] != "" else " "}```
-                    {external_app_display_name}**Created:** <t:{int(dp.parse(user_data['created']).timestamp())}:R>{primary_group}{previous_usernames}"""
+                    {friends}**Created:** <t:{int(dp.parse(user_data['created']).timestamp())}:R>{public_inventory}{primary_group}{previous_usernames}"""
                 else:
                     await inter.send("Failed to load user data!", ephemeral = True)
                     return
             elif data == "experience":
+                used_place_id = False
+                place_id = 0
                 if not id.strip().isdigit():
                     search = requests.get(f"https://games.roblox.com/v1/games/list?model.keyword={id}")
                     if search.status_code == 200:
@@ -154,6 +165,8 @@ def main(token):
                         await inter.send("An experience with that name cannot be found, Try again later!", ephemeral = True)
                         return
                 else:
+                    used_place_id = True
+                    place_id = id
                     place_to_universe_id = requests.get(f"https://apis.roblox.com/universes/v1/places/{id}/universe")
                     if place_to_universe_id.status_code == 200:
                         id = place_to_universe_id.json()['universeId']
@@ -161,7 +174,7 @@ def main(token):
                         await inter.send("Failed to get Universe ID from Place ID", ephemeral = True)
                         return
                 universe = requests.get(f"https://games.roblox.com/v1/games?universeIds={id}")
-                universe_places = requests.get(f"https://develop.roblox.com/v1/universes/{id}/places?sortOrder=Asc&limit=100")
+                universe_places = requests.get(f"https://develop.roblox.com/v1/universes/{id}/places?limit=100")
                 icon = requests.get(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={id}&size=150x150&format=Png")
                 if universe.status_code == 200:
                     universe_data = universe.json()['data'][0]
@@ -208,8 +221,7 @@ def main(token):
                     **Genre:** {universe_data['genre']}{gearsGenres}{gearsCategories}
 
                     **Avatar Type:** {avatarType}
-                    **Uncopylocked:** {"Yes" if universe_data['copyingAllowed'] else "No"}
-                    **Studio Access to APIs Allowed:** {"Yes" if universe_data['studioAccessToApisAllowed'] else "No"}{places}"""
+                    **Uncopylocked:** {"Yes" if universe_data['copyingAllowed'] else "No"}{places}"""
                 else:
                     await inter.send("Failed to load universe data!", ephemeral = True)
                     return
@@ -228,7 +240,7 @@ def main(token):
                 if group.status_code == 200:
                     group_data = group.json()
                     roles_data = roles.json()['roles'] if roles.status_code == 200 else None
-                    name_history_data = name_history.json()["data"] if name_history.status_code == 200 else None
+                    name_history_data = name_history.json()['data'] if name_history.status_code == 200 else None
                     icon_data = icon.json()['data'][0] if icon.status_code == 200 else None
                     name = ("[Verified] " if group_data['hasVerifiedBadge'] else "") + group_data['name']
                     url = f"https://roblox.com/groups/{id}/Group"
@@ -239,7 +251,10 @@ def main(token):
                         owner = ("[Verified] " if group_data['owner']['hasVerifiedBadge'] else "") + f"[{group_data['owner']['displayName']} (@{group_data['owner']['username']})](https://roblox.com/users/{group_data['owner']['userId']}/profile)\n"
                     shout = ""
                     if group_data['shout']:
-                        shout = f"\n**Shout:**\n'''{group_data['shout']['body']}'''" if group_data['shout']['body'] != "" else ""
+                        shout = f"\n**Shout:**\n```{group_data['shout']['body']}```" if group_data['shout']['body'] and group_data['shout']['body'] != "" else ""
+                    locked = ""
+                    if group_data.get('isLocked'):
+                        locked = f"""\n**Locked:** {"Yes" if group_data['isLocked'] else "No"}"""
                     previous_names = ""
                     if name_history_data and len(name_history_data) > 0:
                         previous_names = "\n\n**Previous Usernames:**\n"
@@ -257,7 +272,7 @@ def main(token):
                     **Description:**
                     ```{group_data['description'] if group_data['description'] and group_data['description'] != "" else " "}```
                     **Members:** {group_data['memberCount']}
-                    **Public:** {group_data['publicEntryAllowed']}{shout}{previous_names}{roles}"""
+                    **Public:** {"Yes" if group_data['publicEntryAllowed'] else "No"}{locked}{shout}{previous_names}{roles}"""
                 else:
                     await inter.send("Failed to load group data!", ephemeral = True)
                     return
