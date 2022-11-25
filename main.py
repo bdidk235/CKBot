@@ -82,7 +82,7 @@ jumpscares = [
 ]
 
 def main(token):
-    bot = commands.Bot(intents = Intents(messages = True, message_content = True), sync_commands = True)
+    bot = commands.Bot(intents = Intents(messages = True, message_content = True))
 
     @bot.slash_command(
         description = "Making as much of the Roblox API as possible!",
