@@ -105,7 +105,7 @@ def main(token):
         try:
             name = "Name"
             url = "https://roblox.com"
-            icon_url = Embed.Empty
+            icon_url = None
             info = "Info"
             if data == "user":
                 if not id.strip().isdigit():
