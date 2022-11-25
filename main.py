@@ -1,4 +1,4 @@
-import os
+﻿import os
 import json
 import random
 import asyncio
@@ -82,7 +82,7 @@ jumpscares = [
 ]
 
 def main(token):
-    bot = commands.Bot(intents = Intents(messages = True, message_content = True))
+    bot = commands.Bot(intents = Intents(messages = True, message_content = True), command_prefix='$')
 
     @bot.slash_command(
         description = "Making as much of the Roblox API as possible!",
