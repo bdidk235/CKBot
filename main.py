@@ -1,7 +1,6 @@
 ﻿import os
 import re
 import json
-import urllib
 import random
 import asyncio
 import requests
@@ -82,6 +81,9 @@ jumpscares = [
     "https://tenor.com/view/omori-omori-sunny-sunny-omori-jumpscare-gif-24352720",
     "https://tenor.com/view/among-us-amogus-jumpscare-jumpscare-gif-among-us-sus-gif-24082720",
 ]
+
+def comma(number):
+    return '{:,}'.format(number)
 
 def main(token, roblosecurity = None):
     bot = commands.Bot(intents = disnake.Intents(messages = True, message_content = True), command_prefix='$')
@@ -189,17 +191,19 @@ def main(token, roblosecurity = None):
                 universe_places = requests.get(f"https://develop.roblox.com/v1/universes/{id}/places?limit=100")
                 place = None
                 if roblosecurity:
-                    place = requests.get(f"https://games.roblox.com/v1/games/multiget-place-details?placeIds={place_id}", cookies = {".ROBLOSECURITY": roblosecurity})
+                    place = requests.get(f"https://www.roblox.com/places/api-get-details?assetId={place_id}", cookies = {".ROBLOSECURITY": roblosecurity})
+                else:
+                    place = requests.get(f"https://www.roblox.com/places/api-get-details?assetId={place_id}") 
                 icon = requests.get(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={id}&size=150x150&format=Png")
 
                 if universe.status_code == 200 and len(universe.json()) > 0:
                     universe_data = universe.json()['data'][0]
                     universe_places_data = universe_places.json()['data'] if universe_places.status_code == 200 and len(universe_places.json()) > 0 else None
-                    place_data = place.json()[0] if place and place.status_code == 200 and len(place.json()) > 0 else None
+                    place_data = place.json() if place.status_code == 200 and len(place.json()) > 0 else None
                     icon_data = icon.json()['data'][0] if icon.status_code == 200 and len(icon.json()) > 0 else None
 
                     name = universe_data['name']
-                    url = f"https://roblox.com/games/{universe_data['rootPlaceId']}/{urllib.parse.quote_plus(name).replace('+', '-')}"
+                    url = f"https://roblox.com/games/{place_id}/Game"
                     if icon_data and icon_data['state'] == "Completed":
                         icon_url = icon_data['imageUrl']
                     price = f"**Price:** {universe_data['price']}\n" if universe_data['price'] != None and universe_data['price'] > 0 else ""
@@ -209,17 +213,27 @@ def main(token, roblosecurity = None):
                     creator = ("[Verified] " if universe_data['creator']['hasVerifiedBadge'] else "") + (f"[@{universe_data['creator']['name']}](https://roblox.com/users/{universe_data['creator']['id']}/profile)\n" if universe_data['creator']['type'] == "User" else \
                         f"[{universe_data['creator']['name']}](https://roblox.com/groups/{universe_data['creator']['id']}/Group)\n" if universe_data['creator']['type'] == "Group" else "Unknown")
                     place_info = ""
-                    if place_data:
-                        place_info = f"\n**Playable:** {'Yes' if place_data['isPlayable'] else 'No'}"
-                        if place_data['reasonProhibited'] and place_data['reasonProhibited'] != "None":
-                            reasonProhibited = re.findall('[A-Z][^A-Z]*', place_data['reasonProhibited'])
-                            place_info += f"\n**Reason Prohibited:** {' '.join(reasonProhibited)}"
+                    if roblosecurity:
+                        place_info = f"**Playable:** {'Yes' if place_data['IsPlayable'] else 'No'}"
+                        if place_data['ReasonProhibitedMessage'] and place_data['ReasonProhibitedMessage'] != "None":
+                            place_info += f"\n**Reason Prohibited:** {place_data['ReasonProhibitedMessage']}"
+                        place_info += "\n"
+                    upVotes = place_data['TotalUpVotes']
+                    downVotes = place_data['TotalDownVotes']
+                    total = upVotes + downVotes;
+                    if total != 0:
+                        percent = round((upVotes / total) * 10000) / 100
+                        place_info += f"**Like Ratio:** {percent}% ({comma(upVotes)}/{comma(downVotes)})"
+                    else:
+                        place_info += f"**Like Ratio:** -- ({upVotes}/{downVotes})"
+                    place_info += f"\n**Portrait Mode:** {'Yes' if place_data['UsePortraitMode'] else 'No'}"
+                    place_info += f"\n**Voice Enabled:** {'Yes' if place_data['VoiceEnabled'] else 'No'}"
 
                     places = ""
                     if universe_places_data:
                         places = "\n\n**Places:**\n"
-                        for place in universe_places_data:
-                            places += f"[{place['name']}](https://roblox.com/games/{place['id']}/{urllib.parse.quote_plus(place['name'])})\n"
+                        for universe_place in universe_places_data:
+                            places += f"[{universe_place['name']}](https://roblox.com/games/{universe_place['id']}/Game)\n"
                     gearsGenres = ""
                     if universe_data['allowedGearGenres'][0] != universe_data['genre']:
                         gearsGenres = "\n**Gears Genres:** "
@@ -240,12 +254,13 @@ def main(token, roblosecurity = None):
                     ```{universe_data['description'] if universe_data['description'] and universe_data['description'] != "" else " "}```
                     {price}**Active:** {"{:,}".format(universe_data['playing'])}
                     **Favorites:** {"{:,}".format(universe_data['favoritedCount'])}
-                    **Visits:** {"{:,}".format(universe_data['visits'])}{place_info}
+                    **Visits:** {"{:,}".format(universe_data['visits'])}
                     **Created:** <t:{int(dp.parse(universe_data['created']).timestamp())}:R>
                     **Last Updated:** <t:{int(dp.parse(universe_data['updated']).timestamp())}:R>
                     **Server Size:** {"{:,}".format(universe_data['maxPlayers'])}
                     **Genre:** {universe_data['genre']}{gearsGenres}{gearsCategories}
 
+                    {place_info}
                     **Avatar Type:** {avatarType}
                     **Uncopylocked:** {"Yes" if universe_data['copyingAllowed'] else "No"}{places}"""
                 else:
