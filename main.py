@@ -114,8 +114,12 @@ def main(token, roblosecurity = None):
             if data == "user":
                 if not id.strip().isdigit():
                     username = requests.post(f"https://users.roblox.com/v1/usernames/users", json={"usernames": [id]})
-                    if username.status_code == 200:
-                        id = username.json()["data"][0]["id"]
+                    if username.json() and username.status_code == 200:
+                        users = username.json()["data"]
+                        if len(users) < 1:
+                            await inter.send("Username cannot be found.", ephemeral = True)
+                            return
+                        id = users[0]["id"]
                     else:
                         await inter.send("Username cannot be found. If you're sure it exists, Try again later!", ephemeral = True)
                         return
@@ -124,17 +128,19 @@ def main(token, roblosecurity = None):
                 username_history = requests.get(f"https://users.roblox.com/v1/users/{id}/username-history?limit=100")
                 primary_role = requests.get(f"https://groups.roblox.com/v1/users/{id}/groups/primary/role")
                 inventory_view = requests.get(f"https://inventory.roblox.com/v1/users/{id}/can-view-inventory")
+                roblox_badges = requests.get(f"https://accountinformation.roblox.com/v1/users/{id}/roblox-badges")
                 icon = requests.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={id}&size=150x150&format=Png")
                 presence_last_online = requests.post("https://presence.roblox.com/v1/presence/last-online", json={"userIds": [id]})
 
-                if user.status_code == 200:
+                if user.json() and user.status_code == 200:
                     user_data = user.json()
-                    friend_count_data = friend_count.json() if friend_count.status_code == 200 and len(friend_count.json()) > 0 else None
-                    username_history_data = username_history.json()['data'] if username_history.status_code == 200 and len(username_history.json()) > 0 else None
-                    primary_role_data = primary_role.json() if primary_role.content != None and primary_role.status_code == 200 and len(primary_role.json()) > 0 else None
-                    inventory_view_data = inventory_view.json() if inventory_view.status_code == 200 and len(inventory_view.json()) > 0 else None
-                    icon_data = icon.json()['data'][0] if icon.status_code == 200 and len(icon.json()) > 0 else None
-                    online_data = presence_last_online.json()['lastOnlineTimestamps'][0] if presence_last_online.status_code == 200 and len(presence_last_online.json()) > 0 else None
+                    friend_count_data = friend_count.json() if friend_count.json() and friend_count.status_code == 200 and len(friend_count.json()) > 0 else None
+                    username_history_data = username_history.json()['data'] if username_history.json() and username_history.status_code == 200 and len(username_history.json()) > 0 else None
+                    primary_role_data = primary_role.json() if primary_role.json() and primary_role.content != None and primary_role.status_code == 200 and len(primary_role.json()) > 0 else None
+                    inventory_view_data = inventory_view.json() if inventory_view.json() and inventory_view.status_code == 200 and len(inventory_view.json()) > 0 else None
+                    roblox_badges_data = roblox_badges.json() if roblox_badges.json() and roblox_badges.status_code == 200 and len(roblox_badges.json()) > 0 else None
+                    icon_data = icon.json()['data'][0] if icon.json() and icon.status_code == 200 and len(icon.json()) > 0 else None
+                    online_data = presence_last_online.json()['lastOnlineTimestamps'][0] if presence_last_online.json() and presence_last_online.status_code == 200 and len(presence_last_online.json()) > 0 else None
 
                     badges = "[Verified] " if user_data['hasVerifiedBadge'] else ""\
                         + "[Banned] " if user_data['isBanned'] else ""
@@ -148,7 +154,7 @@ def main(token, roblosecurity = None):
                         friends = f"**Friends:** {friend_count_data['count']}\n"
                     last_online = ""
                     if online_data:
-                        last_online = f"\n**Last Online:** <t:{int(dp.parse(online_data['lastOnline']).timestamp())}:R>"
+                        last_online = f"\n**Last Online:** <t:{int(dp.parse(online_data['lastOnline']).timestamp())}:R>\*"
                     public_inventory = ""
                     if inventory_view_data:
                         public_inventory = f"\n**Public Inventory:** {'Yes' if inventory_view_data['canView'] else 'No'}"
@@ -156,9 +162,16 @@ def main(token, roblosecurity = None):
                     if primary_role_data:
                         primary_group = f"""\n**Primary Group:** [{primary_role_data['group']['name']}](https://roblox.com/groups/{primary_role_data['group']['id']}/Group)
                         **Primary Group Role:** {primary_role_data['role']['name']}"""
+                    boblox_badges = ""
+                    if roblox_badges_data:
+                        boblox_badges = "\n**Roblox Badges:** "
+                        for index, badge in enumerate(roblox_badges_data):
+                            boblox_badges += f"[{badge['name']}](https://www.roblox.com/info/roblox-badges#Badge{badge['id']})"
+                            if index != len(roblox_badges_data) - 1:
+                                boblox_badges += ", "
                     previous_usernames = ""
                     if username_history_data and len(username_history_data) > 0:
-                        previous_usernames = "\n\n**Previous Usernames:**\n"
+                        previous_usernames = "\n**Previous Usernames:**\n"
                         for index, username in enumerate(username_history_data):
                             previous_usernames += f"{username['name']}"
                             if index != len(username_history_data) - 1:
@@ -166,7 +179,8 @@ def main(token, roblosecurity = None):
 
                     info = f"""**Description:**
                     ```{user_data['description'] if user_data['description'] and user_data['description'] != "" else " "}```
-                    {friends}**Created:** <t:{int(dp.parse(user_data['created']).timestamp())}:R>{last_online}{public_inventory}{primary_group}{previous_usernames}"""
+                    {friends}**Created:** <t:{int(dp.parse(user_data['created']).timestamp())}:R>{last_online}{public_inventory}{primary_group}{boblox_badges}
+                    {previous_usernames}"""
                 else:
                     await inter.send("Failed to load user data!", ephemeral = True)
                     return
@@ -175,8 +189,12 @@ def main(token, roblosecurity = None):
                 if not id.strip().isdigit():
                     search = requests.get(f"https://games.roblox.com/v1/games/list?model.keyword={id}")
                     if search.status_code == 200:
-                        id = search.json()["games"][0]["universeId"]
-                        place_id = search.json()["games"][0]["placeId"]
+                        games = search.json()["games"]
+                        if len(games) < 1:
+                            await inter.send("An experience with that name cannot be found!", ephemeral = True)
+                            return
+                        id = games[0]["universeId"]
+                        place_id = games[0]["placeId"]
                     else:
                         await inter.send("An experience with that name cannot be found, Try again later!", ephemeral = True)
                         return
@@ -196,11 +214,11 @@ def main(token, roblosecurity = None):
                     place = requests.get(f"https://www.roblox.com/places/api-get-details?assetId={place_id}") 
                 icon = requests.get(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={id}&size=150x150&format=Png")
 
-                if universe.status_code == 200 and len(universe.json()) > 0:
+                if universe.json() and universe.status_code == 200 and len(universe.json()) > 0:
                     universe_data = universe.json()['data'][0]
-                    universe_places_data = universe_places.json()['data'] if universe_places.status_code == 200 and len(universe_places.json()) > 0 else None
-                    place_data = place.json() if place.status_code == 200 and len(place.json()) > 0 else None
-                    icon_data = icon.json()['data'][0] if icon.status_code == 200 and len(icon.json()) > 0 else None
+                    universe_places_data = universe_places.json()['data'] if universe_places.json() and universe_places.status_code == 200 and len(universe_places.json()) > 0 else None
+                    place_data = place.json() if place.json() and place.status_code == 200 and len(place.json()) > 0 else None
+                    icon_data = icon.json()['data'][0] if icon.json() and icon.status_code == 200 and len(icon.json()) > 0 else None
 
                     name = universe_data['name']
                     url = f"https://roblox.com/games/{place_id}/Game"
@@ -234,20 +252,20 @@ def main(token, roblosecurity = None):
                         places = "\n\n**Places:**\n"
                         for universe_place in universe_places_data:
                             places += f"[{universe_place['name']}](https://roblox.com/games/{universe_place['id']}/Game)\n"
-                    gearsGenres = ""
+                    gears_genres = ""
                     if universe_data['allowedGearGenres'][0] != universe_data['genre']:
-                        gearsGenres = "\n**Gears Genres:** "
+                        gears_genres = "\n**Gears Genres:** "
                         for index, gear in enumerate(universe_data['allowedGearGenres']):
-                            gearsGenres += f"{gear}"
+                            gears_genres += f"{gear}"
                             if index != len(universe_data['allowedGearGenres']) - 1:
-                                gearsGenres += ", "
-                    gearsCategories = ""
+                                gears_genres += ", "
+                    gears_categories = ""
                     if len(universe_data['allowedGearCategories']) > 0:
-                        gearsCategories = "\n**Gears Categories:** "
+                        gears_categories = "\n**Gears Categories:** "
                         for index, gear in enumerate(universe_data['allowedGearCategories']):
-                            gearsGenres += f"{gear}"
+                            gears_genres += f"{gear}"
                             if index != len(universe_data['allowedGearCategories']) - 1:
-                                gearsGenres += ", "
+                                gears_genres += ", "
 
                     info = f"""**By {creator}**
                     **Description:**
@@ -256,9 +274,9 @@ def main(token, roblosecurity = None):
                     **Favorites:** {"{:,}".format(universe_data['favoritedCount'])}
                     **Visits:** {"{:,}".format(universe_data['visits'])}
                     **Created:** <t:{int(dp.parse(universe_data['created']).timestamp())}:R>
-                    **Last Updated:** <t:{int(dp.parse(universe_data['updated']).timestamp())}:R>
+                    **Last Updated:** <t:{int(dp.parse(universe_data['updated']).timestamp())}:R>\*
                     **Server Size:** {"{:,}".format(universe_data['maxPlayers'])}
-                    **Genre:** {universe_data['genre']}{gearsGenres}{gearsCategories}
+                    **Genre:** {universe_data['genre']}{gears_genres}{gears_categories}
 
                     {place_info}
                     **Avatar Type:** {avatarType}
@@ -270,7 +288,11 @@ def main(token, roblosecurity = None):
                 if not id.strip().isdigit():
                     search = requests.get(f"https://groups.roblox.com/v1/groups/search/lookup?groupName={id}")
                     if search.status_code == 200:
-                        id = search.json()["data"][0]["id"]
+                        groups = search.json()["data"]
+                        if len(groups) < 1:
+                            await inter.send("A group with that name cannot be found!", ephemeral = True)
+                            return
+                        id = groups[0]["id"]
                     else:
                         await inter.send("A group with that name cannot be found, Try again later!", ephemeral = True)
                         return
@@ -280,11 +302,11 @@ def main(token, roblosecurity = None):
                 name_history = requests.get(f"https://groups.roblox.com/v1/groups/{id}/name-history?limit=100")
                 icon = requests.get(f"https://thumbnails.roblox.com/v1/groups/icons?groupIds={id}&size=150x150&format=Png")
 
-                if group.status_code == 200:
+                if group.json() and group.status_code == 200:
                     group_data = group.json()
-                    roles_data = roles.json()['roles'] if roles.status_code == 200 and len(roles.json()) > 0 else None
-                    name_history_data = name_history.json()['data'] if name_history.status_code == 200 and len(name_history.json()) > 0 else None
-                    icon_data = icon.json()['data'][0] if icon.status_code == 200 and len(icon.json()) > 0 else None
+                    roles_data = roles.json()['roles'] if roles.json() and roles.status_code == 200 and len(roles.json()) > 0 else None
+                    name_history_data = name_history.json()['data'] if name_history.json() and name_history.status_code == 200 and len(name_history.json()) > 0 else None
+                    icon_data = icon.json()['data'][0] if icon.json() and icon.status_code == 200 and len(icon.json()) > 0 else None
 
                     name = ("[Verified] " if group_data['hasVerifiedBadge'] else "") + group_data['name']
                     url = f"https://roblox.com/groups/{id}/Group"
@@ -453,6 +475,7 @@ def main(token, roblosecurity = None):
         inter: disnake.CommandInteraction,
         text: str
     ):
+        await inter.response.defer()
         try:
             await inter.send(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
@@ -469,6 +492,7 @@ def main(token, roblosecurity = None):
         inter: disnake.CommandInteraction,
         text: str
     ):
+        await inter.response.defer()
         try:
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
@@ -477,6 +501,7 @@ def main(token, roblosecurity = None):
     @bot.message_command(name = "Base64 Encode")
     async def message_b64_encode(inter: disnake.ApplicationCommandInteraction, message: disnake.Message):
         text = message.content
+        await inter.response.defer()
         try:
             await inter.send(b64.b64encode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
@@ -485,6 +510,7 @@ def main(token, roblosecurity = None):
     @bot.message_command(name = "Base64 Decode")
     async def message_b64_decode(inter: disnake.ApplicationCommandInteraction, message: disnake.Message):
         text = message.content
+        await inter.response.defer()
         try:
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
