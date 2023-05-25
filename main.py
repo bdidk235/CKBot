@@ -1,9 +1,10 @@
 ﻿import os
 import re
 import json
+import string
 import random
 import asyncio
-import requests
+import httpx
 import traceback
 import base64 as b64
 from enum import Enum
@@ -113,7 +114,7 @@ def main(token, roblosecurity = None):
             info = "Info"
             if data == "user":
                 if not id.strip().isdigit():
-                    username = requests.post(f"https://users.roblox.com/v1/usernames/users", json={"usernames": [id]})
+                    username = httpx.post(f"https://users.roblox.com/v1/usernames/users", json={"usernames": [id]})
                     if username.json() and username.status_code == 200:
                         users = username.json()["data"]
                         if len(users) < 1:
@@ -123,14 +124,14 @@ def main(token, roblosecurity = None):
                     else:
                         await inter.send("Username cannot be found. If you're sure it exists, Try again later!", ephemeral = True)
                         return
-                user = requests.get(f"https://users.roblox.com/v1/users/{id}")
-                friend_count = requests.get(f"https://friends.roblox.com/v1/users/{id}/friends/count")
-                username_history = requests.get(f"https://users.roblox.com/v1/users/{id}/username-history?limit=100")
-                primary_role = requests.get(f"https://groups.roblox.com/v1/users/{id}/groups/primary/role")
-                inventory_view = requests.get(f"https://inventory.roblox.com/v1/users/{id}/can-view-inventory")
-                roblox_badges = requests.get(f"https://accountinformation.roblox.com/v1/users/{id}/roblox-badges")
-                icon = requests.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={id}&size=150x150&format=Png")
-                presence_last_online = requests.post("https://presence.roblox.com/v1/presence/last-online", json={"userIds": [id]})
+                user = httpx.get(f"https://users.roblox.com/v1/users/{id}")
+                friend_count = httpx.get(f"https://friends.roblox.com/v1/users/{id}/friends/count")
+                username_history = httpx.get(f"https://users.roblox.com/v1/users/{id}/username-history?limit=100")
+                primary_role = httpx.get(f"https://groups.roblox.com/v1/users/{id}/groups/primary/role")
+                inventory_view = httpx.get(f"https://inventory.roblox.com/v1/users/{id}/can-view-inventory")
+                roblox_badges = httpx.get(f"https://accountinformation.roblox.com/v1/users/{id}/roblox-badges")
+                icon = httpx.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={id}&size=150x150&format=Png")
+                presence_last_online = httpx.post("https://presence.roblox.com/v1/presence/last-online", json={"userIds": [id]})
 
                 if user.json() and user.status_code == 200:
                     user_data = user.json()
@@ -151,7 +152,7 @@ def main(token, roblosecurity = None):
                     friends = ""
 
                     if friend_count_data:
-                        friends = f"**Friends:** {friend_count_data['count']}\n"
+                        friends = f"**Friends:** {comma(friend_count_data['count'])}\n"
                     last_online = ""
                     if online_data:
                         last_online = f"\n**Last Online:** <t:{int(dp.parse(online_data['lastOnline']).timestamp())}:R>\*"
@@ -187,32 +188,32 @@ def main(token, roblosecurity = None):
             elif data == "experience":
                 place_id = id
                 if not id.strip().isdigit():
-                    search = requests.get(f"https://games.roblox.com/v1/games/list?model.keyword={id}")
+                    search = httpx.get(f"https://apis.roblox.com/search-api/omni-search?searchQuery={id}&sessionId=ckbot-{''.join(random.choices(string.ascii_uppercase, k=8))}&pageType=Game")
                     if search.status_code == 200:
-                        games = search.json()["games"]
-                        if len(games) < 1:
+                        search_results = search.json()["searchResults"]
+                        if len(search_results) < 1:
                             await inter.send("An experience with that name cannot be found!", ephemeral = True)
                             return
-                        id = games[0]["universeId"]
-                        place_id = games[0]["placeId"]
+                        id = search_results[0]["contents"][0]["universeId"]
+                        place_id = search_results[0]["contents"][0]["rootPlaceId"]
                     else:
                         await inter.send("An experience with that name cannot be found, Try again later!", ephemeral = True)
                         return
                 else:
-                    place_to_universe_id = requests.get(f"https://apis.roblox.com/universes/v1/places/{id}/universe")
+                    place_to_universe_id = httpx.get(f"https://apis.roblox.com/universes/v1/places/{id}/universe")
                     if place_to_universe_id.status_code == 200:
                         id = place_to_universe_id.json()['universeId']
                     else:
                         await inter.send("Failed to get Universe ID from Place ID", ephemeral = True)
                         return
-                universe = requests.get(f"https://games.roblox.com/v1/games?universeIds={id}")
-                universe_places = requests.get(f"https://develop.roblox.com/v1/universes/{id}/places?limit=100")
+                universe = httpx.get(f"https://games.roblox.com/v1/games?universeIds={id}")
+                universe_places = httpx.get(f"https://develop.roblox.com/v1/universes/{id}/places?limit=100")
                 place = None
                 if roblosecurity:
-                    place = requests.get(f"https://www.roblox.com/places/api-get-details?assetId={place_id}", cookies = {".ROBLOSECURITY": roblosecurity})
+                    place = httpx.get(f"https://www.roblox.com/places/api-get-details?assetId={place_id}", cookies = {".ROBLOSECURITY": roblosecurity})
                 else:
-                    place = requests.get(f"https://www.roblox.com/places/api-get-details?assetId={place_id}") 
-                icon = requests.get(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={id}&size=150x150&format=Png")
+                    place = httpx.get(f"https://www.roblox.com/places/api-get-details?assetId={place_id}") 
+                icon = httpx.get(f"https://thumbnails.roblox.com/v1/games/icons?universeIds={id}&size=150x150&format=Png")
 
                 if universe.json() and universe.status_code == 200 and len(universe.json()) > 0:
                     universe_data = universe.json()['data'][0]
@@ -243,7 +244,7 @@ def main(token, roblosecurity = None):
                         percent = round((upVotes / total) * 10000) / 100
                         place_info += f"**Like Ratio:** {percent}% ({comma(upVotes)}/{comma(downVotes)})"
                     else:
-                        place_info += f"**Like Ratio:** -- ({upVotes}/{downVotes})"
+                        place_info += f"**Like Ratio:** -- ({comma(upVotes)}/{comma(downVotes)})"
                     place_info += f"\n**Portrait Mode:** {'Yes' if place_data['UsePortraitMode'] else 'No'}"
                     place_info += f"\n**Voice Enabled:** {'Yes' if place_data['VoiceEnabled'] else 'No'}"
 
@@ -286,7 +287,7 @@ def main(token, roblosecurity = None):
                     return
             elif data == "group":
                 if not id.strip().isdigit():
-                    search = requests.get(f"https://groups.roblox.com/v1/groups/search/lookup?groupName={id}")
+                    search = httpx.get(f"https://groups.roblox.com/v1/groups/search/lookup?groupName={id}")
                     if search.status_code == 200:
                         groups = search.json()["data"]
                         if len(groups) < 1:
@@ -297,10 +298,10 @@ def main(token, roblosecurity = None):
                         await inter.send("A group with that name cannot be found, Try again later!", ephemeral = True)
                         return
 
-                group = requests.get(f"https://groups.roblox.com/v1/groups/{id}")
-                roles = requests.get(f"https://groups.roblox.com/v1/groups/{id}/roles")
-                name_history = requests.get(f"https://groups.roblox.com/v1/groups/{id}/name-history?limit=100")
-                icon = requests.get(f"https://thumbnails.roblox.com/v1/groups/icons?groupIds={id}&size=150x150&format=Png")
+                group = httpx.get(f"https://groups.roblox.com/v1/groups/{id}")
+                roles = httpx.get(f"https://groups.roblox.com/v1/groups/{id}/roles")
+                name_history = httpx.get(f"https://groups.roblox.com/v1/groups/{id}/name-history?limit=100")
+                icon = httpx.get(f"https://thumbnails.roblox.com/v1/groups/icons?groupIds={id}&size=150x150&format=Png")
 
                 if group.json() and group.status_code == 200:
                     group_data = group.json()
@@ -333,12 +334,12 @@ def main(token, roblosecurity = None):
                         roles = "\n**Roles:**\n"
                         for role in roles_data:
                             if role['rank'] != 0 or role['memberCount'] != 0:
-                                roles += f"{role['rank']}: {role['name']} *({role['memberCount']})*\n"
+                                roles += f"{role['rank']}: {role['name']} *({comma(role['memberCount'])})*\n"
 
                     info = f"""**By {owner}**
                     **Description:**
                     ```{group_data['description'] if group_data['description'] and group_data['description'] != "" else " "}```
-                    **Members:** {group_data['memberCount']}
+                    **Members:** {comma(group_data['memberCount'])}
                     **Public:** {"Yes" if group_data['publicEntryAllowed'] else "No"}{locked}{shout}{previous_names}{roles}"""
                 else:
                     await inter.send("Failed to load group data!", ephemeral = True)

@@ -1,5 +1,5 @@
 disnake
+httpx
 youtube-search-python
 googlesearch-python
-requests
 python-dateutil
