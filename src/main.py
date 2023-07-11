@@ -395,7 +395,7 @@ def main(token, roblosecurity = None):
         print(f"{inter.author}: /research search: {search} amount: {amount}")
         await inter.response.defer()
         try:
-            await inter.send(embed = google_search_embed(search, amount))
+            await inter.send(embed = extras.google_search_embed(search, amount))
         except Exception:
             await inter.send(content = "Found Nothing, Please Try Again!")
             traceback.print_exc()
@@ -415,7 +415,7 @@ def main(token, roblosecurity = None):
         print(f"{inter.author}: /videosearch search: {search} amount: {amount}")
         await inter.response.defer()
         try:
-            await inter.send(embed = youtube_search_embed(search, amount))
+            await inter.send(embed = extras.youtube_search_embed(search, amount))
         except Exception:
             await inter.send("Found Nothing, Please Try Again!")
             traceback.print_exc()
@@ -515,7 +515,7 @@ def main(token, roblosecurity = None):
         try:
             await inter.send(b64.b64decode(text.encode("UTF-8")).decode("UTF-8"))
         except Exception:
-            await inter.send("Cannot encode the text.", ephemeral = True)
+            await inter.send("Cannot decode the text.", ephemeral = True)
 
     @bot.event
     async def on_command_error(
