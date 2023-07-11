@@ -43,35 +43,6 @@ faq_choices = [
     disnake.OptionChoice("I have a secret but I really wanna tell it!", "secret"),
 ]
 
-speech_types = [
-    "Yes",
-    "No",
-    "Maybe",
-    "I'm not smart",
-    "What you think you are?",
-    "I met a person before!",
-    "No. That's COMPLETELY WRONG!",
-    "You are an idiot!",
-    "Me",
-    "I don't steal, I ask for it!",
-    "You stupid.",
-    "This is so ironic.",
-    "Gamer",
-    "Ok.",
-    "Cancel it.",
-    "You're Cancelled!",
-    "What's 9 + 10?",
-]
-
-public_speech_types = [
-    "WHERE IS $username, I CANT FIND THEM!",
-    "$username PLEASE STOP!",
-    "$username WHAT IS WRONG WITH YOU?",
-    "hi $username :flushed:",
-]
-
-all_speech_types = speech_types + public_speech_types
-
 jumpscares = [
     "https://tenor.com/view/dog-dog-jumpscare-jumpscare-jumpscare-gif-the-dog-gif-23747153",
     "https://tenor.com/view/sogga-big-floppa-caracal-floppa-big-soggus-gif-23364768",
