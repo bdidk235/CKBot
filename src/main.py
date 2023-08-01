@@ -192,21 +192,27 @@ def main(token, roblosecurity = None):
                     icon_data = icon.json()['data'][0] if icon.json() and icon.status_code == 200 and len(icon.json()) > 0 else None
 
                     name = universe_data['name']
-                    url = f"https://roblox.com/games/{place_id}/Game"
+                    url = place_data['Url'] if place_data else f"https://roblox.com/games/{place_id}/Game"
                     if icon_data and icon_data['state'] == "Completed":
                         icon_url = icon_data['imageUrl']
-                    price = f"**Price:** {universe_data['price']}\n" if universe_data['price'] != None and universe_data['price'] > 0 else ""
-                    avatarType = "Player Choice" if universe_data['universeAvatarType'] == "PlayerChoice" else\
-                        "R15" if universe_data['universeAvatarType'] == "MorphToR15" else\
+
+                    creator = ("[Verified] " if universe_data['creator']['hasVerifiedBadge'] else "") \
+                        + (f"[@{universe_data['creator']['name']}](https://roblox.com/users/{universe_data['creator']['id']}/profile)\n" if universe_data['creator']['type'] == "User" else \
+                        f"[{universe_data['creator']['name']}](https://roblox.com/groups/{universe_data['creator']['id']})\n" if universe_data['creator']['type'] == "Group" else "Unknown")
+
+                    avatarType = "Player Choice" if universe_data['universeAvatarType'] == "PlayerChoice" else \
+                        "R15" if universe_data['universeAvatarType'] == "MorphToR15" else \
                         "R6" if universe_data['universeAvatarType'] == "MorphToR6" else ""
-                    creator = ("[Verified] " if universe_data['creator']['hasVerifiedBadge'] else "") + (f"[@{universe_data['creator']['name']}](https://roblox.com/users/{universe_data['creator']['id']}/profile)\n" if universe_data['creator']['type'] == "User" else \
-                        f"[{universe_data['creator']['name']}](https://roblox.com/groups/{universe_data['creator']['id']}/Group)\n" if universe_data['creator']['type'] == "Group" else "Unknown")
+
+                    price = f"**Price:** {universe_data['price']}\n" if universe_data['price'] != None and universe_data['price'] > 0 else ""
+
                     place_info = ""
                     if roblosecurity:
                         place_info = f"**Playable:** {'Yes' if place_data['IsPlayable'] else 'No'}"
                         if place_data['ReasonProhibitedMessage'] and place_data['ReasonProhibitedMessage'] != "None":
                             place_info += f"\n**Reason Prohibited:** {place_data['ReasonProhibitedMessage']}"
                         place_info += "\n"
+
                     upVotes = place_data['TotalUpVotes']
                     downVotes = place_data['TotalDownVotes']
                     total = upVotes + downVotes;
@@ -215,7 +221,9 @@ def main(token, roblosecurity = None):
                         place_info += f"**Like Ratio:** {percent}% ({comma(upVotes)}/{comma(downVotes)})"
                     else:
                         place_info += f"**Like Ratio:** -- ({comma(upVotes)}/{comma(downVotes)})"
+
                     place_info += f"\n**Portrait Mode:** {'Yes' if place_data['UsePortraitMode'] else 'No'}"
+
                     #place_info += f"\n**Voice Enabled:** {'Yes' if place_data['VoiceEnabled'] else 'No'}"
                     if place_data['VoiceEnabled'] or place_data['CameraEnabled']:
                         communications = []
