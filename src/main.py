@@ -76,7 +76,6 @@ def main(token, roblosecurity = None):
         data: str,
         id: str
     ):
-        print(f"{inter.author}: /roblox data: {data} id: {id}")
         await inter.response.defer()
         try:
             name = "Name"
@@ -217,7 +216,14 @@ def main(token, roblosecurity = None):
                     else:
                         place_info += f"**Like Ratio:** -- ({comma(upVotes)}/{comma(downVotes)})"
                     place_info += f"\n**Portrait Mode:** {'Yes' if place_data['UsePortraitMode'] else 'No'}"
-                    place_info += f"\n**Voice Enabled:** {'Yes' if place_data['VoiceEnabled'] else 'No'}"
+                    #place_info += f"\n**Voice Enabled:** {'Yes' if place_data['VoiceEnabled'] else 'No'}"
+                    if place_data['VoiceEnabled'] or place_data['CameraEnabled']:
+                        communications = []
+                        if place_data['VoiceEnabled']:
+                            communications.append("Microphone")
+                        if place_data['CameraEnabled']:
+                            communications.append("Camera")
+                        place_info += f"\n**Communication:** {', '.join(communications)}"
 
                     places = ""
                     if universe_places_data:
@@ -363,7 +369,6 @@ def main(token, roblosecurity = None):
         search: str,
         amount: int = 10
     ):
-        print(f"{inter.author}: /research search: {search} amount: {amount}")
         await inter.response.defer()
         try:
             await inter.send(embed = extras.google_search_embed(search, amount))
@@ -383,7 +388,6 @@ def main(token, roblosecurity = None):
         search:str,
         amount:int = 10
     ):
-        print(f"{inter.author}: /videosearch search: {search} amount: {amount}")
         await inter.response.defer()
         try:
             await inter.send(embed = extras.youtube_search_embed(search, amount))
@@ -403,7 +407,6 @@ def main(token, roblosecurity = None):
         search: str,
         amount: int = 10
     ):
-        print(f"{inter.author}: /videofinder search: {search} amount: {amount}")
         await inter.response.defer()
         try:
             videos = extras.youtube_search(search, amount)
