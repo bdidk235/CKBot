@@ -1,5 +1,6 @@
 disnake
 httpx
+python-dotenv
 youtube-search-python
 googlesearch-python
 python-dateutil

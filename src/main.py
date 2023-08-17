@@ -514,4 +514,10 @@ def main(token, roblosecurity = None):
     bot.run(token)
 
 if __name__ == "__main__":
-    main(str(os.environ.get("bot_token")), str(os.environ.get("roblosecurity")))
+    try:
+        from dotenv import load_dotenv
+        load_dotenv("../.env")
+    except:
+        pass
+
+    main(str(os.environ.get("BOT_TOKEN")), str(os.environ.get("ROBLOSECURITY")))
